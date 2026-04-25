@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
@@ -14,29 +14,39 @@ const title = ref('')
 const location = ref('')
 const incidentType = ref('')
 const commanderName = ref('')
-const commanders = ref<{ userId: string, name: string }[]>([])
+const latitude = ref('')
+const longitude = ref('')
+const commanders = ref([])
 
 onMounted(async () => {
-  //FIX the localhost after burro
-  const resGetCommanders = await fetch('https://localhost:7096/api/User/commanders')
-  commanders.value = await resGetCommanders.json()
-  console.log(commanders.value)
+  const res = await fetch('https://localhost:7096/api/User/commanders')
+  commanders.value = await res.json()
 })
 
-
 const submit = async () => {
-  await fetch('https://localhost:7096/api/mission', {
+  const payload = {
+    title: title.value,
+    location: location.value,
+    incidentType: incidentType.value,
+    commanderName: commanderName.value,
+    latitude: parseFloat(latitude.value),
+    longitude: parseFloat(longitude.value),
+  }
+
+  console.log('Sending:', payload)
+
+  const res = await fetch('https://localhost:7096/api/Mission', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: title.value,
-      location: location.value,
-      incidentType: incidentType.value,
-      commanderName: commanderName.value,
-    })
+    body: JSON.stringify(payload)
   })
 
-  router.push('/missions')
+  const data = await res.json()
+  console.log('Response:', data)
+
+  if (res.ok) {
+    router.push('/missions')
+  }
 }
 </script>
 
@@ -46,6 +56,8 @@ const submit = async () => {
 
     <Input v-model="title" placeholder="Title" />
     <Input v-model="location" placeholder="Location" />
+    <Input v-model="latitude" placeholder="Latitude  (e.g. 39.6512)" type="number" step="any" />
+    <Input v-model="longitude" placeholder="Longitude (e.g. -8.8245)" type="number" step="any" />
 
     <Select v-model="incidentType">
       <SelectTrigger>
