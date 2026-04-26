@@ -70,10 +70,9 @@ const loadFirefighters = async () => {
   firefighters.value = await res.json()
 }
 
-const toggleFirefighter = (id) => {
-  console.log('Toggling firefighter:', id)
-  const idx = selectedFirefighters.value.indexOf(id)
-  if (idx === -1) selectedFirefighters.value.push(id)
+const toggleFirefighter = (ff) => {
+  const idx = selectedFirefighters.value.findIndex(f => f.firefighterId === ff.firefighterId)
+  if (idx === -1) selectedFirefighters.value.push(ff)
   else selectedFirefighters.value.splice(idx, 1)
 }
 
@@ -89,6 +88,7 @@ const watchMissionCameras = () => {
 //Ver cameras relacionadas a bombeiros selecionados
 
 const watchFirefighterCameras = () => {
+  console.log('Selected firefighters:', selectedFirefighters.value)
   monitorStore.selectFirefighters(selectedFirefighters.value, selectedMission.value)
   router.push({
     path: `/missions/cameras`,
@@ -196,8 +196,9 @@ onUnmounted(() => {
             <TableBody>
               <TableRow v-for="ff in firefighters" :key="ff.firefighterId">
                 <TableCell>
-                  <Checkbox :disabled="!ff.streaming" :checked="selectedFirefighters.includes(ff.firefighterId)"
-                    @click="() => !ff.streaming ? null : toggleFirefighter(ff.firefighterId)" />
+                  <Checkbox :disabled="!ff.streaming"
+                    :checked="selectedFirefighters.some(f => f.firefighterId === ff.firefighterId)"
+                    @click="() => !ff.streaming ? null : toggleFirefighter(ff)" />
                 </TableCell>
                 <TableCell>{{ ff.name }}</TableCell>
                 <TableCell>{{ ff.roleInMission }}</TableCell>

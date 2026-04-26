@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Card } from '@/components/ui/card'
+import VideoStream from '@/components/VideoStream.vue'
 import { useMonitorStore } from '@/stores/monitor'
 
 const monitorStore = useMonitorStore()
@@ -26,7 +27,7 @@ const gridStyle = computed(() => ({
             <div class="grid gap-2 w-full" :style="gridStyle">
                 <div v-for="stream in monitorStore.streamURLs" :key="stream"
                     class="aspect-video w-full overflow-hidden rounded-md border bg-black">
-                    <iframe :src="`http://localhost:8889/${stream}`" class="w-full h-full" scrolling="no" />
+                    <VideoStream :stream-path="stream" name="João Silva" />
                 </div>
             </div>
         </Card>

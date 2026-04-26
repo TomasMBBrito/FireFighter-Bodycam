@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import MapView from '@/views/MapView.vue'
 import CreateMissionView from '@/views/CreateMissionView.vue'
+import CreateUserView from '@/views/CreateUserView.vue'
 import MonitorView from '@/views/MonitorView.vue'
 
 const router = createRouter({
@@ -14,6 +15,9 @@ const router = createRouter({
     },
     {
       path: '/missions/create', component: CreateMissionView
+    },
+    {
+      path: '/users/create', component: CreateUserView
     },
   ],
 })
