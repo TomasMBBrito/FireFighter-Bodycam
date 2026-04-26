@@ -2,23 +2,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import MapView from '@/views/MapView.vue'
-import CameraRooms from '@/views/CameraRooms.vue'
-import FirefightersRoom from '@/views/FirefightersRoom.vue'
+import CreateMissionView from '@/views/CreateMissionView.vue'
+import MonitorView from '@/views/MonitorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {path:'/', component : MapView},
     {
-      path:'/missions/:id/cameras', component : CameraRooms
+      path:'/missions/cameras', component : MonitorView
     },
     {
-      path:'/missions/:id/firefighters', component : FirefightersRoom
+      path: '/missions/create', component: CreateMissionView
     },
-    {
-      path: '/missions/create',
-      component: () => import('@/views/CreateMissionView.vue')
-    }
   ],
 })
 

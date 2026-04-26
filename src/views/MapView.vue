@@ -8,8 +8,10 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useMonitorStore } from '@/stores/monitor'
 
 const router = useRouter()
+const monitorStore = useMonitorStore()
 
 let leafletMap = null
 let markersMap = {}
@@ -69,15 +71,27 @@ const loadFirefighters = async () => {
 }
 
 const toggleFirefighter = (id) => {
+  console.log('Toggling firefighter:', id)
   const idx = selectedFirefighters.value.indexOf(id)
   if (idx === -1) selectedFirefighters.value.push(id)
   else selectedFirefighters.value.splice(idx, 1)
 }
 
-const watchCameras = () => {
+//Ver cameras relacionadas a missao
+
+const watchMissionCameras = () => {
+  monitorStore.selectMission(selectedMission.value)
   router.push({
-    path: `/missions/${selectedMission.value.missionId}/cameras`,
-    query: { firefighters: selectedFirefighters.value.join(',') }
+    path: `/missions/cameras`,
+  })
+}
+
+//Ver cameras relacionadas a bombeiros selecionados
+
+const watchFirefighterCameras = () => {
+  monitorStore.selectFirefighters(selectedFirefighters.value, selectedMission.value)
+  router.push({
+    path: `/missions/cameras`,
   })
 }
 
@@ -163,8 +177,7 @@ onUnmounted(() => {
           <Button :variant="showFirefighters ? 'default' : 'outline'" class="flex-1" @click="loadFirefighters">
             🧑‍🚒 Firefighters
           </Button>
-          <Button variant="outline" class="flex-1" :disabled="showFirefighters"
-            @click="router.push(`/missions/${selectedMission.missionId}/cameras`)">
+          <Button variant="outline" class="flex-1" :disabled="showFirefighters" @click="watchMissionCameras">
             📷 Cameras
           </Button>
         </div>
@@ -184,7 +197,7 @@ onUnmounted(() => {
               <TableRow v-for="ff in firefighters" :key="ff.firefighterId">
                 <TableCell>
                   <Checkbox :disabled="!ff.streaming" :checked="selectedFirefighters.includes(ff.firefighterId)"
-                    @update:checked="toggleFirefighter(ff.firefighterId)" />
+                    @click="() => !ff.streaming ? null : toggleFirefighter(ff.firefighterId)" />
                 </TableCell>
                 <TableCell>{{ ff.name }}</TableCell>
                 <TableCell>{{ ff.roleInMission }}</TableCell>
@@ -197,7 +210,7 @@ onUnmounted(() => {
             </TableBody>
           </Table>
 
-          <Button class="w-full mt-auto" :disabled="selectedFirefighters.length === 0" @click="watchCameras">
+          <Button class="w-full mt-auto" :disabled="selectedFirefighters.length === 0" @click="watchFirefighterCameras">
             Watch Selected Cameras ({{ selectedFirefighters.length }})
           </Button>
         </div>
