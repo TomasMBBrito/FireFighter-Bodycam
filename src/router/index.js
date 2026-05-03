@@ -5,11 +5,14 @@ import MapView from '@/views/MapView.vue'
 import CreateMissionView from '@/views/CreateMissionView.vue'
 import CreateUserView from '@/views/CreateUserView.vue'
 import MonitorView from '@/views/MonitorView.vue'
+import CheckTelemetry from '@/views/CheckTelemetry.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {path:'/', component : MapView},
+    {
+      path:'/', component : MapView
+    },
     {
       path:'/missions/cameras', component : MonitorView
     },
@@ -19,6 +22,9 @@ const router = createRouter({
     {
       path: '/users/create', component: CreateUserView
     },
+    {
+      path: '/missions/telemetry', component: CheckTelemetry
+    }
   ],
 })
 

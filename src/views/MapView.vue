@@ -68,6 +68,7 @@ const loadFirefighters = async () => {
   showFirefighters.value = true
   const res = await fetch(`https://localhost:7096/api/Mission/${selectedMission.value.missionId}/firefighters`)
   firefighters.value = await res.json()
+  console.log('Loaded firefighters:', firefighters.value)
 }
 
 const toggleFirefighter = (ff) => {

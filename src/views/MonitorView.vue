@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed,onMounted, onUnmounted } from 'vue'
 import { Card } from '@/components/ui/card'
 import VideoStream from '@/components/VideoStream.vue'
 import { useMonitorStore } from '@/stores/monitor'
@@ -17,7 +17,6 @@ const gridStyle = computed(() => ({
     display: "grid",
     gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`,
 }))
-
 </script>
 
 <template>
