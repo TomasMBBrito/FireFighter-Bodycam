@@ -11,7 +11,7 @@ onUnmounted(() => telemetryStore.disconnect())
 
 <template>
     <div>
-        <p>Estado: {{ telemetryStore.connected ? '🟢 Ligado' : '🔴 Desligado' }}</p>
+        <p>Estado: {{ telemetryStore.connected ? 'Ligado' : 'Desligado' }}</p>
         <pre>{{ telemetryStore.telemetry }}</pre>
     </div>
 </template>

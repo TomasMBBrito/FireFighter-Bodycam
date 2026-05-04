@@ -30,7 +30,14 @@ export const useMonitorStore = defineStore('monitor', () => {
         })
     }
 
+    const reset = () => {
+    mission.value = null
+    monitorMission.value = null
+    firefightersList.value = []
+    streamURLs.value = []
+}
+
     return {
-        mission, monitorMission, firefightersList, streamURLs, selectMission, selectFirefighters, createStreamURLs
+        mission, monitorMission, firefightersList, streamURLs, selectMission, selectFirefighters, createStreamURLs, reset
     }
 })

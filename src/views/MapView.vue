@@ -176,10 +176,10 @@ onUnmounted(() => {
         <!-- Buttons -->
         <div class="flex gap-2 p-4 border-b">
           <Button :variant="showFirefighters ? 'default' : 'outline'" class="flex-1" @click="loadFirefighters">
-            🧑‍🚒 Firefighters
+            Firefighters
           </Button>
           <Button variant="outline" class="flex-1" :disabled="showFirefighters" @click="watchMissionCameras">
-            📷 Cameras
+            Cameras
           </Button>
         </div>
 

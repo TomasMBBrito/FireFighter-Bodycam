@@ -22,7 +22,10 @@ const gridStyle = computed(() => ({
     gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`,
 }))
 
-onUnmounted(() => telemetryStore.disconnectAll())
+onUnmounted(() => {
+    telemetryStore.disconnectAll()
+    monitorStore.reset()
+})
 </script>
 
 <template>
@@ -32,12 +35,8 @@ onUnmounted(() => telemetryStore.disconnectAll())
         <Card class="p-4 w-[90vw] max-w-6xl">
             <CardContent class="p-0">
                 <div class="grid gap-3 w-full" :style="gridStyle">
-                    <FirefighterCard
-                        v-for="(ff, index) in monitorStore.firefightersList"
-                        :key="ff.firefighterId"
-                        :firefighter="ff"
-                        :stream-path="monitorStore.streamURLs[index]"
-                    />
+                    <FirefighterCard v-for="(ff, index) in monitorStore.firefightersList" :key="ff.firefighterId"
+                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" />
                 </div>
             </CardContent>
         </Card>
