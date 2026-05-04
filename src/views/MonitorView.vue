@@ -1,5 +1,5 @@
 <script setup>
-import { computed,onMounted, onUnmounted } from 'vue'
+import { computed} from 'vue'
 import { Card } from '@/components/ui/card'
 import VideoStream from '@/components/VideoStream.vue'
 import { useMonitorStore } from '@/stores/monitor'
@@ -26,7 +26,7 @@ const gridStyle = computed(() => ({
             <div class="grid gap-2 w-full" :style="gridStyle">
                 <div v-for="stream in monitorStore.streamURLs" :key="stream"
                     class="aspect-video w-full overflow-hidden rounded-md border bg-black">
-                    <VideoStream :stream-path="stream" name="João Silva" />
+                    <VideoStream :stream-path="stream" />
                 </div>
             </div>
         </Card>
