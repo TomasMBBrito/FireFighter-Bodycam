@@ -1,10 +1,14 @@
 <script setup>
-import { computed} from 'vue'
-import { Card } from '@/components/ui/card'
-import VideoStream from '@/components/VideoStream.vue'
+import { computed, onUnmounted } from 'vue'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import FirefighterCard from '@/components/FireFighterCard.vue'
 import { useMonitorStore } from '@/stores/monitor'
+import { useTelemetryStore } from '@/stores/telemetry'
 
 const monitorStore = useMonitorStore()
+const telemetryStore = useTelemetryStore()
 
 monitorStore.createStreamURLs()
 
@@ -17,18 +21,26 @@ const gridStyle = computed(() => ({
     display: "grid",
     gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`,
 }))
+
+onUnmounted(() => telemetryStore.disconnectAll())
 </script>
 
 <template>
-    <div class="h-screen flex items-center justify-center bg-muted">
-        <Card class="p-4 w-[90vw] max-w-6xl">
+    <div class="flex flex-col items-center gap-4 p-4 bg-muted min-h-0 overflow-y-auto">
 
-            <div class="grid gap-2 w-full" :style="gridStyle">
-                <div v-for="stream in monitorStore.streamURLs" :key="stream"
-                    class="aspect-video w-full overflow-hidden rounded-md border bg-black">
-                    <VideoStream :stream-path="stream" />
+        <!-- Grid de cards -->
+        <Card class="p-4 w-[90vw] max-w-6xl">
+            <CardContent class="p-0">
+                <div class="grid gap-3 w-full" :style="gridStyle">
+                    <FirefighterCard
+                        v-for="(ff, index) in monitorStore.firefightersList"
+                        :key="ff.firefighterId"
+                        :firefighter="ff"
+                        :stream-path="monitorStore.streamURLs[index]"
+                    />
                 </div>
-            </div>
+            </CardContent>
         </Card>
+
     </div>
 </template>

@@ -2,30 +2,30 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useTelemetryStore = defineStore('telemetry', () => {
-    const telemetry_data = ref(null)
-    const connected = ref(false)
-    let socket = null
+    const telemetry_map = ref({}) 
+    const sockets = {}
 
     const connect = (firefighterID) => {
-        if(socket){
-            disconnect()
+        if(sockets[firefighterID]) {
+            disconnect(firefighterID)
         }
 
-        socket = new WebSocket(`ws://localhost:5081/ws/${firefighterID}`);
+        const socket = new WebSocket(`ws://localhost:5081/ws/${firefighterID}`);
 
         socket.onopen = () => {
-            connected.value = true
+            //connected.value = true
             console.log('WebSocket connection established to firefighter ID:', firefighterID);
         }
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            telemetry_data.value = data
-            console.log('[Telemetria]', data)
+            telemetry_map.value[firefighterID] = data
+            //console.log('[Telemetria]', data)
         }
 
         socket.onclose = () => {
-            connected.value = false
+            // connected.value = false
+            telemetry_map.value[firefighterID] = null
             console.log(`WebSocket connection closed: ${firefighterID}`)
         }
 
@@ -33,20 +33,25 @@ export const useTelemetryStore = defineStore('telemetry', () => {
             console.error('[WS] Error:', err)
         }
 
-
-
-
+        sockets[firefighterID] = socket
     }
 
 
     const disconnect = () => {
-        socket?.close()
-        socket = null
-        connected.value = false
-        telemetry.value = null
+        sockets[firefighterID]?.close()
+        delete sockets[firefighterId]
+        delete telemetry_map.value[firefighterId]
     }
 
-    return { telemetry_data, connected, connect, disconnect }
+    const disconnectAll = () => {
+        Object.keys(sockets).forEach(disconnect)
+    }
+
+    const getTelemetry = (firefighterId) => {
+        return telemetry_map.value[firefighterId] ?? null
+    }
+
+    return { telemetry_map, connect, disconnect, disconnectAll,getTelemetry }
 
 
 })
