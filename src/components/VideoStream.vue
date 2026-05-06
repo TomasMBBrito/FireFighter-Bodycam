@@ -13,7 +13,11 @@ let pc = null
 
 onMounted(async () => {
     try {
-        pc = new RTCPeerConnection()
+        pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+            ]
+        })
 
         pc.ontrack = (e) => {
             videoEl.value.srcObject = e.streams[0]
@@ -27,10 +31,24 @@ onMounted(async () => {
         const offer = await pc.createOffer()
         await pc.setLocalDescription(offer)
 
+        await new Promise((resolve) => {
+            if (pc.iceGatheringState === 'complete') {
+                resolve()
+            } else {
+                const timeout = setTimeout(resolve, 3000) // ← não espera mais de 3s
+                pc.addEventListener('icegatheringstatechange', () => {
+                    if (pc.iceGatheringState === 'complete') {
+                        clearTimeout(timeout)
+                        resolve()
+                    }
+                })
+            }
+        })
+
         const res = await fetch(`http://localhost:8889/${props.streamPath}/whep`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/sdp' },
-            body: offer.sdp
+            body: pc.localDescription.sdp
         })
 
         if (!res.ok) {
