@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 
 const links = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Map', path: '/' },
     { label: 'Missions', path: '/missions' },
     { label: 'Firefighters', path: '/firefighters' },
 ]
