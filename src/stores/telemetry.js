@@ -37,8 +37,8 @@ export const useTelemetryStore = defineStore('telemetry', () => {
     }
 
 
-    const disconnect = () => {
-        sockets[firefighterID]?.close()
+    const disconnect = (firefighterId) => {
+        sockets[firefighterId]?.close()
         delete sockets[firefighterId]
         delete telemetry_map.value[firefighterId]
     }

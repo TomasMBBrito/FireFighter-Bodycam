@@ -1,15 +1,29 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted,onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import FirefighterCard from '@/components/FireFighterCard.vue'
+import { useMonitorStore } from '@/stores/monitor'
+import { useTelemetryStore } from '@/stores/telemetry'
 
 const route = useRoute()
+const monitorStore = useMonitorStore()
+const telemetryStore = useTelemetryStore()
 
 const selectedFirefighters = computed(() => {
     const ids = route.query.ids ? route.query.ids.split(',') : []
     const names = route.query.names ? route.query.names.split(',') : []
-    return ids.map((id, i) => ({ id, name: names[i] ?? id }))
+    return ids.map((id, i) => ({ firefighterId: id, name: names[i] ?? id }))
+})
+
+onMounted(async () => {
+    monitorStore.selectFirefighters(selectedFirefighters.value,null)
+    await monitorStore.createStreamURLs()
+})
+
+onUnmounted(() => {
+    telemetryStore.disconnectAll()
+    monitorStore.reset()
 })
 </script>
 
@@ -20,9 +34,8 @@ const selectedFirefighters = computed(() => {
                 <CardTitle>Live — {{ selectedFirefighters.length }} firefighter(s)</CardTitle>
             </CardHeader>
             <CardContent class="flex flex-wrap gap-2">
-                <Badge v-for="ff in selectedFirefighters" :key="ff.id" variant="secondary">
-                    {{ ff.name }}
-                </Badge>
+                <FirefighterCard v-for="(ff, index) in monitorStore.firefightersList" :key="ff.firefighterId"
+                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" />
             </CardContent>
         </Card>
     </div>
