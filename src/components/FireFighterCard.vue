@@ -1,10 +1,8 @@
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useTelemetryStore } from '@/stores/telemetry'
 import VideoStream from '@/components/VideoStream.vue'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 
 const props = defineProps({
     firefighter: Object,
@@ -14,81 +12,102 @@ const props = defineProps({
 const telemetryStore = useTelemetryStore()
 const t = computed(() => telemetryStore.getTelemetry(props.firefighter.firefighterId))
 
-onMounted(() => telemetryStore.connect(props.firefighter.firefighterId))
-onUnmounted(() => telemetryStore.disconnect(props.firefighter.firefighterId))
+const showMap = ref(false)
+const mapContainer = ref(null)
+let leafletMap = null
 
-const val = (value, unit = '') => value != null ? `${value}${unit}` : '—'
+const openMap = () => {
+    showMap.value = true
+    setTimeout(() => {
+        if (leafletMap) { leafletMap.remove(); leafletMap = null }
+        const L = window.L
+        leafletMap = L.map(mapContainer.value, { zoomControl: true })
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+        }).addTo(leafletMap)
+        leafletMap.setView([t.value.GpsLat, t.value.GpsLng], 16)
+        L.marker([t.value.GpsLat, t.value.GpsLng])
+            .addTo(leafletMap)
+            .bindPopup(props.firefighter.name)
+            .openPopup()
+    }, 100)
+}
+
+const closeMap = () => {
+    showMap.value = false
+    if (leafletMap) { leafletMap.remove(); leafletMap = null }
+}
+
+onMounted(() => {
+    telemetryStore.connect(props.firefighter.firefighterId)
+    if (!window.L) {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+        document.head.appendChild(link)
+        const script = document.createElement('script')
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+        document.head.appendChild(script)
+    }
+})
+
+onUnmounted(() => {
+    telemetryStore.disconnect(props.firefighter.firefighterId)
+    if (leafletMap) { leafletMap.remove(); leafletMap = null }
+})
+
+const motionLevelLabel = computed(() => {
+    const m = t.value?.MotionLevel
+    if (m == null) return '—'
+    if (m < 0.2) return 'Low'
+    if (m < 0.6) return 'Medium'
+    return 'High'
+})
 </script>
 
 <template>
-    <Card class="overflow-hidden bg-black border-gray-800 flex flex-col">
+    <div class="w-full rounded-lg overflow-hidden border border-border">
+        <!-- Video -->
+        <div class="relative aspect-video bg-black">
+            <VideoStream :stream-path="streamPath" class="w-full h-full object-cover" />
 
-        <!-- Vídeo -->
-        <div class="relative w-full bg-black" style="aspect-ratio: 16/10;">
-            <VideoStream :stream-path="streamPath" class="w-full h-full" />
-
-            <!-- Nome -->
-            <div class="absolute top-2 left-2">
-                <Badge variant="secondary" class="bg-black/70 text-white">
-                    {{ firefighter.name }}
-                </Badge>
+            <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                {{ firefighter.name }}
             </div>
 
-            <!-- Badge queda -->
-            <div class="absolute top-2 right-2" v-if="t?.fallDetected">
-                <Badge variant="destructive" class="animate-pulse">
-                    ⚠ QUEDA
+            <div v-if="t?.FallDetected" class="absolute top-2 right-2">
+                <Badge variant="destructive" class="animate-pulse text-xs">
+                    FALL DETECTED
                 </Badge>
             </div>
         </div>
 
-        <Separator class="bg-gray-800" />
+        <!-- Telemetry bar -->
+        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2 items-center">
+            <Badge variant="outline">{{ t.ActivityState ?? 'N/A' }}</Badge>
+            <Badge variant="outline">{{ t.IsMoving ? 'Moving' : 'Stationary' }}</Badge>
+            <Badge variant="outline">Motion Level:{{ motionLevelLabel }}</Badge>
+            <Badge v-if="t.GpsLat && t.GpsLng" variant="outline" class="font-mono cursor-pointer hover:bg-accent"
+                @click="openMap">
+                {{ t.GpsLat?.toFixed(5) }}, {{ t.GpsLng?.toFixed(5) }}
+            </Badge>
+        </div>
+    </div>
 
-        <!-- Telemetria -->
-        <CardContent class="p-3 grid grid-cols-3 gap-3">
-
-            <div class="flex flex-col gap-1">
-                <span class="text-xs text-muted-foreground">🌡 Temperatura</span>
-                <Badge class="w-fit">
-                    {{ val(t?.BodyTemp, '°C') }}
-                </Badge>
+    <!-- Map modal -->
+    <Teleport to="body">
+        <div v-if="showMap" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
+            @click.self="closeMap">
+            <div class="bg-background rounded-xl overflow-hidden border border-border w-[520px]">
+                <div class="flex justify-between items-center px-4 py-3 border-b border-border">
+                    <span class="text-sm font-medium">{{ firefighter.name }} — Location</span>
+                    <button class="text-muted-foreground hover:text-foreground text-lg leading-none" @click="closeMap">
+                        ✕
+                    </button>
+                </div>
+                <div ref="mapContainer" style="height: 360px;" />
             </div>
-
-            <div class="flex flex-col gap-1">
-                <span class="text-xs text-muted-foreground">❤️ Ritmo Cardíaco</span>
-                <Badge class="w-fit">
-                    {{ val(t?.HeartRate, ' bpm') }}
-                </Badge>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <span class="text-xs text-muted-foreground">💥 Impacto</span>
-                <Badge :variant="(t?.impactMagnitude ?? 0) > 1.2 ? 'destructive' : 'secondary'" class="w-fit">
-                    {{ val(t?.ImpactMagnitude) }}
-                </Badge>
-            </div>
-
-            <div class="flex flex-col gap-1 col-span-2">
-                <span class="text-xs text-muted-foreground">📍 GPS</span>
-                <span class="text-xs text-white font-mono">
-                    {{ t ? `${t.GpsLat}, ${t.GpsLng}` : '—' }}
-                </span>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <span class="text-xs text-muted-foreground">🏃 Estado</span>
-                <Badge :variant="t?.fallDetected ? 'destructive' : 'secondary'" class="w-fit">
-                    {{ val(t?.ActivityState) }}
-                </Badge>
-            </div>
-
-            <div class="flex flex-col gap-1">
-                <span class="text-xs text-muted-foreground">📡 Orientação</span>
-                <Badge variant="secondary" class="w-fit">
-                    {{ val(t?.Orientation) }}
-                </Badge>
-            </div>
-
-        </CardContent>
-    </Card>
+        </div>
+    </Teleport>
 </template>
