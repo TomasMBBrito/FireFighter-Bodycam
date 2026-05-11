@@ -38,11 +38,29 @@ const makeFireIcon = (L, selected = false) => L.divIcon({
   iconAnchor: [selected ? 22 : 16, selected ? 22 : 16],
 })
 
+const makeUserIcon = (L, selected = false) => L.divIcon({
+  className: '',
+  html: `<div style="
+    font-size: ${selected ? '36px' : '24px'};
+    transition: all 0.2s ease;
+    filter: ${selected ? 'drop-shadow(0 0 8px rgba(59,130,246,0.9))' : 'none'};
+    cursor: pointer;
+  ">👤</div>`,
+  iconSize: [selected ? 44 : 32, selected ? 44 : 32],
+  iconAnchor: [selected ? 22 : 16, selected ? 22 : 16],
+})
+
+const getMissionIcon = (L, mission, selected = false) => {
+  return mission.incidentType === 'Solo'
+    ? makeUserIcon(L, selected)
+    : makeFireIcon(L, selected)
+}
+
 const selectMission = async (mission) => {
   const prev = selectedMission.value
 
   if (prev && markersMap[prev.missionId]) {
-    markersMap[prev.missionId].setIcon(makeFireIcon(window.L, false))
+    markersMap[prev.missionId].setIcon(getMissionIcon(window.L, prev, false))
   }
 
   if (prev?.missionId === mission.missionId) {
@@ -99,7 +117,7 @@ const watchFirefighterCameras = () => {
 const addMarkers = (L) => {
   missions.value.forEach((mission) => {
     const marker = L.marker([mission.latitude, mission.longitude], {
-      icon: makeFireIcon(L, false),
+      icon: getMissionIcon(L, mission, false),
     }).addTo(leafletMap)
 
     marker.on('click', () => selectMission(mission))
