@@ -37,7 +37,7 @@ const submit = async () => {
     console.log('Response:', data)
 
     if (res.ok) {
-        router.push('/Users')
+        router.push('/')
     }
 }
 </script>
@@ -59,6 +59,7 @@ const submit = async () => {
                 <SelectItem value="Commander">Commander</SelectItem>
                 <SelectItem value="Monitor">Monitor</SelectItem>
                 <SelectItem value="Firefighter">Firefighter</SelectItem>
+                <SelectItem value="Vehicle">Vehicle</SelectItem>
             </SelectContent>
         </Select>
 

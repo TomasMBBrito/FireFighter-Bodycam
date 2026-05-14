@@ -1,7 +1,12 @@
-<!-- components/NavBar.vue -->
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
 const router = useRouter()
@@ -22,6 +27,20 @@ const links = [
                 @click="router.push(link.path)">
                 {{ link.label }}
             </Button>
+
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button variant="ghost">Create</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem @click="router.push('/missions/create')">
+                        Create Mission
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="router.push('/users/create')">
+                        Create Firefighter
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     </nav>
 </template>
