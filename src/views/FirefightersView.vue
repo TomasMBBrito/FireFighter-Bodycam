@@ -32,7 +32,10 @@ const isSelected = (ff) => selected.value.some(f => f.firefighterId === ff.firef
 const goToWatchLive = () => {
     router.push({
         path: '/firefighters/live',
-        query: { ids: selected.value.map(f => f.firefighterId).join(','), names : selected.value.map(f => f.name).join(',') }
+        query: { 
+            ids: selected.value.map(f => f.role === "Vehicle" ? f.userId : f.firefighterId).join(','), 
+            names : selected.value.map(f => f.name).join(',') 
+        }
     })
 }
 

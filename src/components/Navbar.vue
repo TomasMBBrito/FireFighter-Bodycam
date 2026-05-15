@@ -37,7 +37,7 @@ const links = [
                         Create Mission
                     </DropdownMenuItem>
                     <DropdownMenuItem @click="router.push('/users/create')">
-                        Create Firefighter
+                        Create User
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
