@@ -11,6 +11,7 @@ import {
 import { useTelemetryStore } from '@/stores/telemetry'
 import VideoStream from '@/components/VideoStream.vue'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 const props = defineProps({
     firefighter: Object,
@@ -31,6 +32,47 @@ const leafletReady = ref(!!window.L)
 
 let leafletMap = null
 let leafletMarker = null
+
+const ttsButtons = computed(() =>[
+    {
+        label: 'Evacuate',
+        message: 'Evacua o edificio já!'
+    },
+    {
+        label: '1 min',
+        message: 'Tens 1 minutos para saires daí.'
+    },
+    {
+        label: '5 min',
+        message: 'Tens 5 minutos para continuares a procura.'
+    },
+    {
+        label: 'Report Now',
+        message: `${props.firefighter.name} reporta o teu estado já.`
+    }
+])
+
+const sendTTS = async (text) => {
+    try {
+        const res = await fetch('https://localhost:7096/api/TextToSpeech', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                firefighterId: props.firefighter.firefighterId,
+                text
+            })
+        })
+        const data  =JSON.stringify({
+                firefighterId: props.firefighter.firefighterId,
+                text})
+        console.log('TTS message sent:', data)
+        console.log('TTS response:', res.status, await res.text())
+    } catch (error) {
+        console.error('Failed to send TTS message:', error)
+    }
+}
 
 function getArrowIcon(bearing) {
     const L = window.L
@@ -263,6 +305,19 @@ const bearingLabel = computed(() => {
                 {{ t.GpsLat?.toFixed(5) }},
                 {{ t.GpsLng?.toFixed(5) }}
             </Badge>
+        </div>
+
+        <!-- Text to speech buttons-->
+        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2">
+            <Button
+                v-for="btn in ttsButtons"
+                :key="btn.message"
+                size="sm"
+                variant="outline"
+                @click="sendTTS(btn.message)"
+            >
+                {{ btn.label }}
+            </Button>
         </div>
     </div>
 
