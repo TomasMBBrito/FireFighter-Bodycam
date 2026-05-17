@@ -9,9 +9,11 @@ import {
 } from 'vue'
 
 import { useTelemetryStore } from '@/stores/telemetry'
+import { useSosStore } from '@/stores/sos'
 import VideoStream from '@/components/VideoStream.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 
 const props = defineProps({
     firefighter: Object,
@@ -19,6 +21,7 @@ const props = defineProps({
 })
 
 const telemetryStore = useTelemetryStore()
+const sosStore = useSosStore()
 
 const t = computed(() =>
     telemetryStore.getTelemetry(
@@ -32,6 +35,10 @@ const leafletReady = ref(!!window.L)
 
 let leafletMap = null
 let leafletMarker = null
+
+
+const sosActive = ref(false)
+let sosTimeout = null
 
 const ttsButtons = computed(() =>[
     {
@@ -134,6 +141,13 @@ watch(
         leafletMarker.setLatLng([newLat, newLng])
     }
 )
+
+watch(() => sosStore.get_sos(props.firefighter.firefighterId), (val) => {
+    if (!val) return
+    sosActive.value = true
+    clearTimeout(sosTimeout)
+    sosTimeout = setTimeout(() => { sosActive.value = false }, 10000)
+})
 
 const openMap = async () => {
     if (
@@ -275,6 +289,16 @@ const bearingLabel = computed(() => {
                 <Badge variant="destructive" class="animate-pulse text-xs">
                     FALL DETECTED
                 </Badge>
+            </div>
+            <div v-if="sosActive" class="absolute inset-0 flex items-center justify-center z-10 bg-red-600/80 animate-pulse">
+                <Alert variant="destructive" class="w-fit border-2 border-white shadow-2xl bg-red-600 text-white">
+                    <AlertTitle class="text-2xl font-black flex items-center gap-2">
+                        ALERTA
+                    </AlertTitle>
+                    <AlertDescription class="text-base text-white">
+                        {{ firefighter.name }} asked for help!
+                    </AlertDescription>
+                </Alert>
             </div>
         </div>
 
