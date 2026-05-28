@@ -25,7 +25,7 @@ export const useMonitorStore = defineStore('monitor', () => {
             firefightersList.value = await res.json()
         }
         firefightersList.value.forEach(ff => {
-            streamURLs.value.push(`${ff.firefighterId}`)
+            streamURLs.value.push(`${mission.value.missionId}/${ff.firefighterId}`)
             //console.log(`${mission.value.missionId}/${ff.firefighterId}`) // Log the stream URL for debugging
         })
     }

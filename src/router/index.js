@@ -8,6 +8,9 @@ import CreateUserView from '@/views/CreateUserView.vue'
 import MonitorView from '@/views/MonitorView.vue'
 import FirefightersView from '@/views/FirefightersView.vue'
 import FirefighterLiveView from '@/views/FirefighterLiveView.vue'
+import HistoryView from '@/views/HistoryView.vue'
+import MissionHistoryView from '@/views/MissionHistoryView.vue'
+import FootageView from '@/views/FootageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,8 +35,16 @@ const router = createRouter({
     },
     {
       path:'/firefighters/live', component: FirefighterLiveView
+    },
+    {
+      path:'/history', component: HistoryView
+    },
+    {
+      path:'/history/mission/:userId/:firefighterId', name: 'MissionHistoryView', component: MissionHistoryView
+    },
+    {
+      path:'/history/footage/:missionId/:firefighterId', name: 'FootageView', component: FootageView
     }
   ],
 })
-
 export default router

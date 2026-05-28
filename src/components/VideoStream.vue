@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
+import { MEDIA_SERVER_URL } from '@/config/env'
 
 const props = defineProps({
     streamPath: String,
@@ -102,7 +103,7 @@ const connect = async () => {
 
         if (destroyed) return
 
-        const res = await fetch(`http://localhost:8889/${props.streamPath}/whep`, {
+        const res = await fetch(`${MEDIA_SERVER_URL}/${props.streamPath}/whep`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/sdp' },
             body: pc.localDescription.sdp

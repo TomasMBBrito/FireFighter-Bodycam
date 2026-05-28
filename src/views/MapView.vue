@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useMonitorStore } from '@/stores/monitor'
+import { API_BASE_URL } from '@/config/env'
 
 const router = useRouter()
 const monitorStore = useMonitorStore()
@@ -84,7 +85,7 @@ const selectMission = async (mission) => {
 const loadFirefighters = async () => {
   if (!selectedMission.value) return
   showFirefighters.value = true
-  const res = await fetch(`https://localhost:7096/api/Mission/${selectedMission.value.missionId}/firefighters`)
+  const res = await fetch(`${API_BASE_URL}/api/Mission/${selectedMission.value.missionId}/firefighters`)
   firefighters.value = await res.json()
   console.log('Loaded firefighters:', firefighters.value)
 }
@@ -130,7 +131,7 @@ const addMarkers = (L) => {
 // -------------------------------------------------------
 onMounted(async () => {
   try {
-    const res = await fetch('https://localhost:7096/api/Mission')
+    const res = await fetch(`${API_BASE_URL}/api/Mission`)
     missions.value = await res.json()
   } catch (e) {
     console.error('Failed to fetch missions:', e)

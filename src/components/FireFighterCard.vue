@@ -12,6 +12,7 @@ import { useTelemetryStore } from '@/stores/telemetry'
 import VideoStream from '@/components/VideoStream.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { API_BASE_URL } from '@/config/env'
 
 const props = defineProps({
     firefighter: Object,
@@ -54,7 +55,7 @@ const ttsButtons = computed(() =>[
 
 const sendTTS = async (text) => {
     try {
-        const res = await fetch('https://localhost:7096/api/TextToSpeech', {
+        const res = await fetch(`${API_BASE_URL}/api/TextToSpeech`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

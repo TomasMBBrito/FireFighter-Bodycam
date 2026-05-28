@@ -7,6 +7,7 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue
 } from '@/components/ui/select'
+import { API_BASE_URL } from '@/config/env'
 
 const router = useRouter()
 
@@ -19,7 +20,7 @@ const longitude = ref('')
 const commanders = ref([])
 
 onMounted(async () => {
-  const res = await fetch('https://localhost:7096/api/User/commanders')
+  const res = await fetch(`${API_BASE_URL}/api/User/commanders`)
   commanders.value = await res.json()
 })
 
@@ -35,7 +36,7 @@ const submit = async () => {
 
   console.log('Sending:', payload)
 
-  const res = await fetch('https://localhost:7096/api/Mission', {
+  const res = await fetch(`${API_BASE_URL}/api/Mission`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)

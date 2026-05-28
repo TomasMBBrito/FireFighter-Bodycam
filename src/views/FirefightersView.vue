@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { API_BASE_URL } from '@/config/env'
 
 const router = useRouter()
 const firefighters = ref([])
@@ -16,7 +17,7 @@ const selected = ref([])
 
 
 const loadFirefighters = async () => {
-    const res = await fetch(`https://localhost:7096/api/User/firefighters`)
+    const res = await fetch(`${API_BASE_URL}/api/User/firefighters`)
     firefighters.value = await res.json()
     console.log(firefighters.value)
 }
