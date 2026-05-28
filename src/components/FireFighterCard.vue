@@ -9,9 +9,11 @@ import {
 } from 'vue'
 
 import { useTelemetryStore } from '@/stores/telemetry'
+import { useSosStore } from '@/stores/sos'
 import VideoStream from '@/components/VideoStream.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { API_BASE_URL } from '@/config/env'
 
 const props = defineProps({
@@ -20,6 +22,7 @@ const props = defineProps({
 })
 
 const telemetryStore = useTelemetryStore()
+const sosStore = useSosStore()
 
 const t = computed(() =>
     telemetryStore.getTelemetry(
@@ -34,14 +37,18 @@ const leafletReady = ref(!!window.L)
 let leafletMap = null
 let leafletMarker = null
 
-const ttsButtons = computed(() =>[
+
+const sosActive = ref(false)
+let sosTimeout = null
+
+const ttsButtons = computed(() => [
     {
         label: 'Evacuate',
-        message: 'Evacua o edificio já!'
+        message: 'Evacua o edifício já!'
     },
     {
         label: '1 min',
-        message: 'Tens 1 minutos para saires daí.'
+        message: 'Tens 1 minutos para saíres daí.'
     },
     {
         label: '5 min',
@@ -65,9 +72,10 @@ const sendTTS = async (text) => {
                 text
             })
         })
-        const data  =JSON.stringify({
-                firefighterId: props.firefighter.firefighterId,
-                text})
+        const data = JSON.stringify({
+            firefighterId: props.firefighter.firefighterId,
+            text
+        })
         console.log('TTS message sent:', data)
         console.log('TTS response:', res.status, await res.text())
     } catch (error) {
@@ -135,6 +143,13 @@ watch(
         leafletMarker.setLatLng([newLat, newLng])
     }
 )
+
+watch(() => sosStore.get_sos(props.firefighter.firefighterId), (val) => {
+    if (!val) return
+    sosActive.value = true
+    clearTimeout(sosTimeout)
+    sosTimeout = setTimeout(() => { sosActive.value = false }, 10000)
+})
 
 const openMap = async () => {
     if (
@@ -277,6 +292,17 @@ const bearingLabel = computed(() => {
                     FALL DETECTED
                 </Badge>
             </div>
+            <div v-if="sosActive"
+                class="absolute inset-0 flex items-center justify-center z-10 bg-red-600/80 animate-pulse">
+                <Alert variant="destructive" class="w-fit border-2 border-white shadow-2xl bg-red-600 text-white">
+                    <AlertTitle class="text-2xl font-black flex items-center gap-2">
+                        ALERTA
+                    </AlertTitle>
+                    <AlertDescription class="text-base text-white">
+                        {{ firefighter.name }} asked for help!
+                    </AlertDescription>
+                </Alert>
+            </div>
         </div>
 
         <!-- Telemetry -->
@@ -310,13 +336,8 @@ const bearingLabel = computed(() => {
 
         <!-- Text to speech buttons-->
         <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2">
-            <Button
-                v-for="btn in ttsButtons"
-                :key="btn.message"
-                size="sm"
-                variant="outline"
-                @click="sendTTS(btn.message)"
-            >
+            <Button v-for="btn in ttsButtons" :key="btn.message" size="sm" variant="outline"
+                @click="sendTTS(btn.message)">
                 {{ btn.label }}
             </Button>
         </div>

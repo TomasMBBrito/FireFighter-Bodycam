@@ -17,6 +17,9 @@ const selected = ref([])
 
 
 const loadFirefighters = async () => {
+    const res = await fetch(`https://localhost:7096/api/User/firefighters`)
+    console.log(res)
+
     const res = await fetch(`${API_BASE_URL}/api/User/firefighters`)
     firefighters.value = await res.json()
     console.log(firefighters.value)
@@ -33,9 +36,9 @@ const isSelected = (ff) => selected.value.some(f => f.firefighterId === ff.firef
 const goToWatchLive = () => {
     router.push({
         path: '/firefighters/live',
-        query: { 
-            ids: selected.value.map(f => f.role === "Vehicle" ? f.userId : f.firefighterId).join(','), 
-            names : selected.value.map(f => f.name).join(',') 
+        query: {
+            ids: selected.value.map(f => f.role === "Vehicle" ? f.userId : f.firefighterId).join(','),
+            names: selected.value.map(f => f.name).join(',')
         }
     })
 }
@@ -47,9 +50,7 @@ loadFirefighters()
         <Card class="w-full max-w-3xl">
             <CardHeader class="flex flex-row items-center justify-between">
                 <CardTitle>Firefighters</CardTitle>
-                <Button
-                    :disabled="selected.length === 0"
-                    @click="goToWatchLive">
+                <Button :disabled="selected.length === 0" @click="goToWatchLive">
                     Watch Live ({{ selected.length }})
                 </Button>
             </CardHeader>
@@ -62,10 +63,7 @@ loadFirefighters()
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow
-                            v-for="ff in firefighters"
-                            :key="ff.firefighterId"
-                            class="cursor-pointer"
+                        <TableRow v-for="ff in firefighters" :key="ff.firefighterId" class="cursor-pointer"
                             @click="toggle(ff)">
                             <TableCell>
                                 <Checkbox :checked="isSelected(ff)" />

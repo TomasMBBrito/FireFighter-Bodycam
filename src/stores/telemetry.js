@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useSosStore } from '@/stores/sos'
 
 export const useTelemetryStore = defineStore('telemetry', () => {
     const telemetry_map = ref({}) 
@@ -19,6 +20,12 @@ export const useTelemetryStore = defineStore('telemetry', () => {
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data)
+            console.log(data)
+            if (data.Type === 'SOS') {
+                const sosStore = useSosStore()
+                sosStore.trigger_sos(data.FirefighterId)
+                return
+            }
             telemetry_map.value[firefighterID] = data
             //console.log('[Telemetria]', data)
         }
