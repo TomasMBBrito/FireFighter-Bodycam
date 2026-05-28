@@ -17,6 +17,8 @@ const selected = ref([])
 
 const loadFirefighters = async () => {
     const res = await fetch(`https://localhost:7096/api/User/firefighters`)
+    console.log(res)
+
     firefighters.value = await res.json()
     console.log(firefighters.value)
 }

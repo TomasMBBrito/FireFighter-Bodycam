@@ -43,11 +43,11 @@ let sosTimeout = null
 const ttsButtons = computed(() =>[
     {
         label: 'Evacuate',
-        message: 'Evacua o edificio já!'
+        message: 'Evacua o edifício já!'
     },
     {
         label: '1 min',
-        message: 'Tens 1 minutos para saires daí.'
+        message: 'Tens 1 minutos para saíres daí.'
     },
     {
         label: '5 min',
