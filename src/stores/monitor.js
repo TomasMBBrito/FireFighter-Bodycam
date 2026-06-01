@@ -22,6 +22,30 @@ export const useMonitorStore = defineStore('monitor', () => {
         monitorMission.value = false
     }
 
+    const createStreamURLsOnlyKnowFirefighters = async () => {
+        streamURLs.value = []
+
+        if (monitorMission.value) {
+            const res = await fetch(
+                `${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`
+            )
+
+            firefightersList.value = await res.json()
+        }
+
+        for (const ff of firefightersList.value) {
+            const res = await fetch(
+                `${API_BASE_URL}/api/Mission/firefighter/${ff.firefighterId}/active-mission`
+            )
+
+            const data = await res.json()
+
+            streamURLs.value.push(
+                `${ff.firefighterId}/${data.missionId}`
+            )
+        }
+    }
+
     const createStreamURLs = async () => {
         if(monitorMission.value) {
             const res = await fetch(`${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`)
@@ -41,6 +65,6 @@ export const useMonitorStore = defineStore('monitor', () => {
 }
 
     return {
-        mission, monitorMission, firefightersList, streamURLs, selectMission, selectFirefighters, createStreamURLs, reset
+        mission, monitorMission, firefightersList, streamURLs, selectMission, selectFirefighters, createStreamURLs, reset, createStreamURLsOnlyKnowFirefighters
     }
 })

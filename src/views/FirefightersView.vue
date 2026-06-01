@@ -35,7 +35,9 @@ const goToWatchLive = () => {
     router.push({
         path: '/firefighters/live',
         query: {
-            ids: selected.value.map(f => f.role === "Vehicle" ? f.userId : f.firefighterId).join(','),
+            ids: selected.value.map(
+                f => f.firefighterId
+            ).join(','),
             names: selected.value.map(f => f.name).join(',')
         }
     })

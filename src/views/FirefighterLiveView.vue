@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted,onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import FirefighterCard from '@/components/FireFighterCard.vue'
@@ -17,8 +17,10 @@ const selectedFirefighters = computed(() => {
 })
 
 onMounted(async () => {
-    monitorStore.selectFirefighters(selectedFirefighters.value,null)
-    await monitorStore.createStreamURLs()
+    monitorStore.selectFirefighters(selectedFirefighters.value, null)
+    await monitorStore.createStreamURLsOnlyKnowFirefighters()
+    console.log('firefighters', firefightersList.value)
+    console.log('streamURLs', streamURLs.value)
 })
 
 onUnmounted(() => {
@@ -35,7 +37,7 @@ onUnmounted(() => {
             </CardHeader>
             <CardContent class="flex flex-wrap gap-2">
                 <FirefighterCard v-for="(ff, index) in monitorStore.firefightersList" :key="ff.firefighterId"
-                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" />
+                    :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" />
             </CardContent>
         </Card>
     </div>
