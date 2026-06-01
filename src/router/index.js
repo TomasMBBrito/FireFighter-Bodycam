@@ -44,6 +44,10 @@ const router = createRouter({
     },
     {
       path:'/history/footage/:missionId/:firefighterId', name: 'FootageView', component: FootageView
+    },
+    {
+      path: '/missions/edit/:id',
+      component: () => import('@/views/MissionEditView.vue')
     }
   ],
 })
