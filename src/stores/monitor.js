@@ -24,7 +24,7 @@ export const useMonitorStore = defineStore('monitor', () => {
 
     const createStreamURLs = async () => {
         if(monitorMission.value) {
-            const res = await fetch(`https://${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`)
+            const res = await fetch(`${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`)
             firefightersList.value = await res.json()
         }
         firefightersList.value.forEach(ff => {

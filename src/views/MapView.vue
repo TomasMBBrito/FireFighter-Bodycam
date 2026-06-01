@@ -23,6 +23,8 @@ const missions = ref([])
 const firefighters = ref([])
 const selectedFirefighters = ref([])
 const showFirefighters = ref(false)
+const firefightersError = ref(false)
+const firefightersLoaded = ref(false)
 
 // -------------------------------------------------------
 // Map helpers
@@ -84,10 +86,32 @@ const selectMission = async (mission) => {
 
 const loadFirefighters = async () => {
   if (!selectedMission.value) return
+
   showFirefighters.value = true
-  const res = await fetch(`${API_BASE_URL}/api/Mission/${selectedMission.value.missionId}/firefighters`)
-  firefighters.value = await res.json()
-  console.log('Loaded firefighters:', firefighters.value)
+  firefightersError.value = false
+  firefightersLoaded.value = false
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/Mission/${selectedMission.value.missionId}/firefighters`
+    )
+
+    if (res.status === 404) {
+      firefighters.value = []
+      firefightersError.value = true
+      firefightersLoaded.value = true
+      return
+    }
+
+    firefighters.value = await res.json()
+    firefightersLoaded.value = true
+
+  } catch (e) {
+    console.error('Failed to fetch firefighters:', e)
+    firefighters.value = []
+    firefightersError.value = true
+    firefightersLoaded.value = true
+  }
 }
 
 const toggleFirefighter = (ff) => {
@@ -194,7 +218,7 @@ onUnmounted(() => {
 
         <!-- Buttons -->
         <div class="flex gap-2 p-4 border-b">
-          <Button :variant="showFirefighters ? 'default' : 'outline'" class="flex-1" @click="loadFirefighters">
+          <Button :variant="showFirefighters ? 'default' : 'outline'" class="flex-1 relative" @click="loadFirefighters">
             Firefighters
           </Button>
           <Button variant="outline" class="flex-1" :disabled="showFirefighters" @click="watchMissionCameras">
