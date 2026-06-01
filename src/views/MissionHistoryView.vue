@@ -7,6 +7,8 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 
+import { API_BASE_URL } from '@/config/env'
+
 const missions = ref([])
 const route = useRoute()
 const router = useRouter()
@@ -17,7 +19,7 @@ const firefighterId = route.params.firefighterId
 
 onMounted(async () => {
     try {
-        const res = await fetch(`https://localhost:7096/api/user/${userId}/missions`)
+        const res = await fetch(`${API_BASE_URL}/api/user/${userId}/missions`)
         const all = await res.json()
         missions.value = all
         console.log('Missions for user', userId, missions.value)

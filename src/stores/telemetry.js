@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useSosStore } from '@/stores/sos'
 
+import { WS_SERVER_URL } from '@/config/env'
+
 export const useTelemetryStore = defineStore('telemetry', () => {
     const telemetry_map = ref({}) 
     const sockets = {}
@@ -11,7 +13,7 @@ export const useTelemetryStore = defineStore('telemetry', () => {
             disconnect(firefighterID)
         }
 
-        const socket = new WebSocket(`ws://localhost:5081/ws/${firefighterID}`);
+        const socket = new WebSocket(`${WS_SERVER_URL}/ws/${firefighterID}`);
 
         socket.onopen = () => {
             //connected.value = true
@@ -31,9 +33,8 @@ export const useTelemetryStore = defineStore('telemetry', () => {
         }
 
         socket.onclose = () => {
-            // connected.value = false
-            telemetry_map.value[firefighterID] = null
-            console.log(`WebSocket connection closed: ${firefighterID}`)
+            telemetry_map.value[firefighterId] = null
+            delete sockets[firefighterId]
         }
 
         socket.onerror = (err) => {
@@ -45,13 +46,18 @@ export const useTelemetryStore = defineStore('telemetry', () => {
 
 
     const disconnect = (firefighterId) => {
-        sockets[firefighterId]?.close()
-        delete sockets[firefighterId]
-        delete telemetry_map.value[firefighterId]
+        const socket = sockets[firefighterId]
+        if (!socket) return
+
+
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.close(1000, 'Normal closure')
+        }
     }
 
     const disconnectAll = () => {
-        Object.keys(sockets).forEach(disconnect)
+        const ids = Object.keys(sockets)
+        ids.forEach(disconnect)
     }
 
     const getTelemetry = (firefighterId) => {

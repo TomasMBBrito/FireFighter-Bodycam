@@ -20,6 +20,8 @@ import {
     CardTitle
 } from '@/components/ui/card'
 
+import { MEDIAPLAYBACK_SERVER_URL } from '@/config/env'
+
 const footage = ref([])
 const selectedVideo = ref(null)
 
@@ -29,15 +31,13 @@ const loading = ref(true)
 const missionId = route.params.missionId
 const firefighterId = route.params.firefighterId
 
-const MEDIA_MTX_HOST = '100.102.144.13'
-
 onMounted(async () => {
     try {
 
         const path = `${firefighterId}/${missionId}`
 
         const res = await fetch(
-            `http://${MEDIA_MTX_HOST}:9996/list?path=${encodeURIComponent(path)}`
+            `${MEDIAPLAYBACK_SERVER_URL}/list?path=${path}`
         )
 
         const data = await res.json()
@@ -48,7 +48,7 @@ onMounted(async () => {
 
                 playbackUrl: item.url.replace(
                     'localhost',
-                    MEDIA_MTX_HOST
+                    MEDIAPLAYBACK_SERVER_URL
                 )
             }))
 

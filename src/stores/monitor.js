@@ -1,11 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { API_BASE_URL } from '@/config/env'
 
 export const useMonitorStore = defineStore('monitor', () => {
     const mission = ref(null)
     const monitorMission = ref(null)
     const firefightersList = ref([])
     const streamURLs = ref([])
+
+    
 
     const selectMission = (missionData) => {
         mission.value = missionData
@@ -21,7 +24,7 @@ export const useMonitorStore = defineStore('monitor', () => {
 
     const createStreamURLs = async () => {
         if(monitorMission.value) {
-            const res = await fetch(`https://localhost:7096/api/Mission/${mission.value.missionId}/firefighters`)
+            const res = await fetch(`https://${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`)
             firefightersList.value = await res.json()
         }
         firefightersList.value.forEach(ff => {

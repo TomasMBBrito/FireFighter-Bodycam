@@ -23,6 +23,7 @@ const loadFirefighters = async () => {
 }
 
 const toggle = (ff) => {
+    if (!ff.streaming) return
     const idx = selected.value.findIndex(f => f.firefighterId === ff.firefighterId)
     if (idx === -1) selected.value.push(ff)
     else selected.value.splice(idx, 1)
@@ -63,7 +64,7 @@ loadFirefighters()
                         <TableRow v-for="ff in firefighters" :key="ff.firefighterId" class="cursor-pointer"
                             @click="toggle(ff)">
                             <TableCell>
-                                <Checkbox :checked="isSelected(ff)" />
+                                <Checkbox :checked="isSelected(ff)" :disabled="!ff.streaming" />
                             </TableCell>
                             <TableCell class="font-medium">{{ ff.name }}</TableCell>
                         </TableRow>

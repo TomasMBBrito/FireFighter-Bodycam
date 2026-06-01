@@ -15,7 +15,7 @@ const loading = ref(true)
 
 onMounted(async () => {
     try {
-        const res = await fetch('https://localhost:7096/api/User/firefighters')
+        const res = await fetch(`${API_BASE_URL}/api/User/firefighters`)
         const all = await res.json()
         firefighters.value = all
     } catch (e) {

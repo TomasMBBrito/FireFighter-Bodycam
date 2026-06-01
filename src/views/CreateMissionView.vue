@@ -14,7 +14,7 @@ const router = useRouter()
 const title = ref('')
 const location = ref('')
 const incidentType = ref('')
-const commanderName = ref('')
+const commanderId = ref('')
 const latitude = ref('')
 const longitude = ref('')
 const commanders = ref([])
@@ -29,7 +29,7 @@ const submit = async () => {
     title: title.value,
     location: location.value,
     incidentType: incidentType.value,
-    commanderName: commanderName.value,
+    commanderId: commanderId.value,
     latitude: parseFloat(latitude.value),
     longitude: parseFloat(longitude.value),
   }
@@ -73,12 +73,12 @@ const submit = async () => {
       </SelectContent>
     </Select>
 
-    <Select v-model="commanderName">
+    <Select v-model="commanderId">
       <SelectTrigger>
         <SelectValue placeholder="Commander" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem v-for="c in commanders" :key="c.userId" :value="c.name">
+        <SelectItem v-for="c in commanders" :key="c.userId" :value="c.userId">
           {{ c.name }}
         </SelectItem>
       </SelectContent>

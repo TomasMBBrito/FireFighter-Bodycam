@@ -8,15 +8,39 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
+import { API_BASE_URL } from '@/config/env'
+
 const router = useRouter()
 const missions = ref([])
 const loading = ref(true)
 
 onMounted(async () => {
   try {
-    const res = await fetch('https://localhost:7096/api/Mission/status/Active')
+    const res = await fetch(`${API_BASE_URL}/api/Mission/status/Active`)
     const all = await res.json()
-    missions.value = all.filter(m => m.incidentType === 'Solo')
+
+    const soloMissions = all.filter(m => m.incidentType === 'Solo')
+
+    for (const mission of soloMissions) {
+      try {
+        const ffRes = await fetch(
+          `${API_BASE_URL}/api/Mission/${mission.missionId}/firefighters`
+        )
+
+        const firefighters = await ffRes.json()
+
+        mission.streaming =
+          firefighters.length > 0
+            ? firefighters[0].streaming
+            : false
+
+      } catch {
+        mission.streaming = false
+      }
+    }
+
+    missions.value = soloMissions
+
   } catch (e) {
     console.error('Failed to fetch solo missions:', e)
   } finally {
@@ -26,7 +50,7 @@ onMounted(async () => {
 
 const watchLive = async (mission) => {
   try {
-    const res = await fetch(`https://localhost:7096/api/Mission/${mission.missionId}/firefighters`)
+    const res = await fetch(`${API_BASE_URL}/api/Mission/${mission.missionId}/firefighters`)
     const firefighters = await res.json()
 
     const ids = firefighters.map(ff => ff.firefighterId).join(',')
@@ -73,7 +97,7 @@ const watchLive = async (mission) => {
             <Badge>{{ mission.status }}</Badge>
           </TableCell>
           <TableCell class="text-right">
-            <Button size="sm" @click="watchLive(mission)">
+            <Button size="sm" :disabled="!mission.streaming" @click="watchLive(mission)">
               Watch Live
             </Button>
           </TableCell>
