@@ -64,6 +64,12 @@ const loadData = async () => {
 }
 
 const saveMission = async () => {
+    const statusMap = {
+        'Active': 0,
+        'Completed': 1,
+        'Cancelled': 2
+    }
+
     try {
         const res = await fetch(
             `${API_BASE_URL}/api/Mission/${missionId}`,
@@ -78,7 +84,7 @@ const saveMission = async () => {
                     latitude: mission.value.latitude,
                     longitude: mission.value.longitude,
                     incidentType: mission.value.incidentType,
-                    status: mission.value.status,
+                    status: statusMap[mission.value.status],
                     commanderId: mission.value.commanderId
                 })
             }
@@ -122,7 +128,7 @@ const addFirefighter = async () => {
 
     try {
         const res = await fetch(
-            `${API_BASE_URL}/Mission/associate`,
+            `${API_BASE_URL}/api/Mission/associate`,
             {
                 method: 'POST',
                 headers: {
@@ -238,7 +244,7 @@ onMounted(loadData)
                         Select firefighter
                     </option>
 
-                    <option v-for="ff in availableFirefighters" :key="ff.userId" :value="ff.userId">
+                    <option v-for="ff in availableFirefighters" :key="ff.firefighterId" :value="ff.firefighterId">
                         {{ ff.name }}
                     </option>
                 </select>
