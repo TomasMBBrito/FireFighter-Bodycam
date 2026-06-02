@@ -30,13 +30,14 @@ const t = computed(() =>
     )
 )
 
-const showMap = ref(false)
+let pathLine = null
+const pathPoints = []
+
 const mapContainer = ref(null)
 const leafletReady = ref(!!window.L)
 
 let leafletMap = null
 let leafletMarker = null
-
 
 const sosActive = ref(false)
 let sosTimeout = null
@@ -83,16 +84,51 @@ const sendTTS = async (text) => {
     }
 }
 
-function getArrowIcon(bearing) {
+async function createMap() {
+    if (
+        !window.L ||
+        !mapContainer.value ||
+        !t.value ||
+        t.value.GpsLat == null ||
+        t.value.GpsLng == null
+    ) {
+        return
+    }
+
     const L = window.L
 
-    const angle = Number(bearing || 0)
+    leafletMap = L.map(mapContainer.value, {
+        zoomControl: false,
+        attributionControl: false
+    })
 
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 19 }
+    ).addTo(leafletMap)
+
+    const latlng = [t.value.GpsLat, t.value.GpsLng]
+
+    leafletMap.setView(latlng, 18)
+
+    leafletMarker = L.marker(latlng, {
+        icon: getArrowIcon(t.value.CompassBearing)
+    }).addTo(leafletMap)
+
+    pathPoints.push(latlng)
+
+    pathLine = L.polyline(pathPoints, { weight: 4 }).addTo(leafletMap)
+
+    leafletMap.invalidateSize()
+}
+
+function getArrowIcon(bearing) {
+    const L = window.L
+    const angle = Number(bearing)
     return L.divIcon({
         className: '',
         iconSize: [40, 40],
         iconAnchor: [20, 20],
-
         html: `
             <svg
                 width="40"
@@ -114,33 +150,33 @@ function getArrowIcon(bearing) {
     })
 }
 
-function destroyMap() {
-    if (leafletMap) {
-        leafletMap.remove()
-        leafletMap = null
-    }
-
-    leafletMarker = null
-}
-
-// Watch for bearing changes and update the marker icon
 watch(
     () => t.value?.CompassBearing,
-    (newBearing) => {
-        if (!leafletMarker || newBearing == null) return
-
-        const bearing = Number(newBearing ?? 0)
+    (bearing) => {
+        if (!leafletMarker) return
         leafletMarker.setIcon(getArrowIcon(bearing))
     }
 )
 
-// Also watch for GPS position changes to update marker location
 watch(
     () => [t.value?.GpsLat, t.value?.GpsLng],
-    ([newLat, newLng]) => {
-        if (!leafletMarker || newLat == null || newLng == null) return
+    ([lat, lng]) => {
+        if (!leafletMarker || lat == null || lng == null) return
 
-        leafletMarker.setLatLng([newLat, newLng])
+        const position = [lat, lng]
+        leafletMarker.setLatLng(position)
+        leafletMap?.panTo(position, { animate: true, duration: 0.5 })
+        pathPoints.push(position)
+        if (pathLine) pathLine.setLatLngs(pathPoints)
+    }
+)
+
+watch(
+    () => [t.value?.GpsLat, t.value?.GpsLng],
+    async ([lat, lng]) => {
+        if (leafletMap || lat == null || lng == null || !leafletReady.value) return
+        await nextTick()
+        createMap()
     }
 )
 
@@ -151,137 +187,62 @@ watch(() => sosStore.get_sos(props.firefighter.firefighterId), (val) => {
     sosTimeout = setTimeout(() => { sosActive.value = false }, 10000)
 })
 
-const openMap = async () => {
-    if (
-        !window.L ||
-        !t.value ||
-        t.value.GpsLat == null ||
-        t.value.GpsLng == null
-    ) {
-        return
-    }
-
-    showMap.value = true
-
-    // wait for modal render
-    await nextTick()
-
-    // wait for DOM paint
-    requestAnimationFrame(() => {
-        if (!mapContainer.value) return
-
-        destroyMap()
-
-        const L = window.L
-
-        leafletMap = L.map(mapContainer.value, {
-            zoomControl: true,
-        })
-
-        L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19,
-            }
-        ).addTo(leafletMap)
-
-        leafletMap.setView(
-            [t.value.GpsLat, t.value.GpsLng],
-            16
-        )
-
-        const bearing = Number(t.value.CompassBearing ?? 0)
-
-        leafletMarker = L.marker(
-            [t.value.GpsLat, t.value.GpsLng],
-            {
-                icon: getArrowIcon(bearing)
-            }
-        )
-            .addTo(leafletMap)
-            .bindPopup(props.firefighter.name)
-            .openPopup()
-
-        leafletMap.invalidateSize()
-    })
-}
-
-const closeMap = () => {
-    showMap.value = false
-    destroyMap()
-}
-
 onMounted(() => {
-    telemetryStore.connect(
-        props.firefighter.firefighterId
-    )
+    telemetryStore.connect(props.firefighter.firefighterId)
 
-    if (!window.L) {
-        const link = document.createElement('link')
-
-        link.rel = 'stylesheet'
-        link.href =
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-
-        document.head.appendChild(link)
-
+    if (window.L) {
+        nextTick(() => createMap())
+    } else {
         const script = document.createElement('script')
-
-        script.src =
-            'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-
+        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
         script.onload = () => {
             leafletReady.value = true
+            nextTick(() => createMap())
         }
-
         document.head.appendChild(script)
     }
 })
 
-onUnmounted(() => {
-    telemetryStore.disconnect(
-        props.firefighter.firefighterId
-    )
+function destroyMap() {
+    if (leafletMap) {
+        leafletMap.remove()
+        leafletMap = null
+    }
+    leafletMarker = null
+    pathLine = null
+    pathPoints.length = 0
+}
 
+onUnmounted(() => {
+    telemetryStore.disconnect(props.firefighter.firefighterId)
     destroyMap()
 })
 
 const motionLevelLabel = computed(() => {
     const m = t.value?.MotionLevel
-
     if (m == null) return '—'
     if (m < 0.2) return 'Low'
     if (m < 0.6) return 'Medium'
-
     return 'High'
 })
 
 const bearingLabel = computed(() => {
     const b = t.value?.CompassBearing
-
     if (b == null) return null
-
-    const dirs = [
-        'N',
-        'NE',
-        'E',
-        'SE',
-        'S',
-        'SW',
-        'W',
-        'NW'
-    ]
-
+    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
     return dirs[Math.round(b / 45) % 8]
 })
 </script>
 
 <template>
+    <!-- Single root wrapper fixes the multi-root grid alignment bug -->
     <div class="w-full rounded-lg overflow-hidden border border-border">
         <!-- Video -->
         <div class="relative aspect-video bg-black">
             <VideoStream :stream-path="streamPath" class="w-full h-full object-cover" />
+
+            <div v-if="leafletReady" ref="mapContainer"
+                class="absolute bottom-2 right-2 w-52 h-40 rounded-lg overflow-hidden border-2 border-white shadow-xl z-20 bg-white" />
 
             <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                 {{ firefighter.name }}
@@ -292,6 +253,7 @@ const bearingLabel = computed(() => {
                     FALL DETECTED
                 </Badge>
             </div>
+
             <div v-if="sosActive"
                 class="absolute inset-0 flex items-center justify-center z-10 bg-red-600/80 animate-pulse">
                 <Alert variant="destructive" class="w-fit border-2 border-white shadow-2xl bg-red-600 text-white">
@@ -320,21 +282,16 @@ const bearingLabel = computed(() => {
             </Badge>
 
             <Badge v-if="bearingLabel" variant="outline">
-                ↑ {{ bearingLabel }}
-                ({{ Math.round(t.CompassBearing) }}°)
+                ↑ {{ bearingLabel }} ({{ Math.round(t.CompassBearing) }}°)
             </Badge>
 
-            <Badge v-if="
-                t.GpsLat != null &&
-                t.GpsLng != null &&
-                leafletReady
-            " variant="outline" class="font-mono cursor-pointer hover:bg-accent" @click="openMap">
-                {{ t.GpsLat?.toFixed(5) }},
-                {{ t.GpsLng?.toFixed(5) }}
+            <Badge v-if="t.GpsLat != null && t.GpsLng != null && leafletReady" variant="outline"
+                class="font-mono cursor-pointer hover:bg-accent">
+                {{ t.GpsLat?.toFixed(5) }}, {{ t.GpsLng?.toFixed(5) }}
             </Badge>
         </div>
 
-        <!-- Text to speech buttons-->
+        <!-- Text to speech buttons -->
         <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2">
             <Button v-for="btn in ttsButtons" :key="btn.message" size="sm" variant="outline"
                 @click="sendTTS(btn.message)">
@@ -342,24 +299,4 @@ const bearingLabel = computed(() => {
             </Button>
         </div>
     </div>
-
-    <!-- Map Modal -->
-    <Teleport to="body">
-        <div v-if="showMap" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
-            @click.self="closeMap">
-            <div class="bg-background rounded-xl overflow-hidden border border-border w-[520px]">
-                <div class="flex justify-between items-center px-4 py-3 border-b border-border">
-                    <span class="text-sm font-medium">
-                        {{ firefighter.name }} — Location
-                    </span>
-
-                    <button class="text-muted-foreground hover:text-foreground text-lg leading-none" @click="closeMap">
-                        ✕
-                    </button>
-                </div>
-
-                <div ref="mapContainer" style="height: 360px;" />
-            </div>
-        </div>
-    </Teleport>
 </template>

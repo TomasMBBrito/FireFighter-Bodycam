@@ -23,6 +23,10 @@ export const useTelemetryStore = defineStore('telemetry', () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data)
             console.log(data)
+            console.log(
+                "Timestamp:",
+                data.Timestamp
+            )
             if (data.Type === 'SOS') {
                 const sosStore = useSosStore()
                 sosStore.trigger_sos(data.FirefighterId)
@@ -33,8 +37,8 @@ export const useTelemetryStore = defineStore('telemetry', () => {
         }
 
         socket.onclose = () => {
-            telemetry_map.value[firefighterId] = null
-            delete sockets[firefighterId]
+            telemetry_map.value[firefighterID] = null
+            delete sockets[firefighterID]
         }
 
         socket.onerror = (err) => {

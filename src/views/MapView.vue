@@ -30,26 +30,7 @@ const showFirefighters = ref(false)
 const makeFireIcon = (L, selected = false) =>
   L.divIcon({
     className: '',
-    html: `
-      <svg
-        width="${selected ? 44 : 32}"
-        height="${selected ? 44 : 32}"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        style="
-          transition: all 0.2s ease;
-          filter: ${selected
-        ? 'drop-shadow(0 0 8px rgba(220,38,38,0.9))'
-        : 'none'};
-          cursor: pointer;
-        "
-      >
-        <path
-          fill="#dc2626"
-          d="M12 2C12 2 7 7 7 12c0 3.31 2.69 6 6 6s6-2.69 6-6c0-4-3-6.5-4-10 0 0-1 2-3 4-1-2-1-4-1-4z"
-        />
-      </svg>
-    `,
+    html: `<span style="font-size: ${selected ? '2rem' : '1.5rem'}; cursor: pointer; filter: ${selected ? 'drop-shadow(0 0 6px rgba(220,38,38,0.9))' : 'none'}; transition: all 0.2s ease;">🔥</span>`,
     iconSize: [selected ? 44 : 32, selected ? 44 : 32],
     iconAnchor: [selected ? 22 : 16, selected ? 22 : 16],
   })
@@ -57,27 +38,7 @@ const makeFireIcon = (L, selected = false) =>
 const makeUserIcon = (L, selected = false) =>
   L.divIcon({
     className: '',
-    html: `
-      <svg
-        width="${selected ? 44 : 32}"
-        height="${selected ? 44 : 32}"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        style="
-          transition: all 0.2s ease;
-          filter: ${selected
-        ? 'drop-shadow(0 0 8px rgba(59,130,246,0.9))'
-        : 'none'};
-          cursor: pointer;
-        "
-      >
-        <circle cx="12" cy="8" r="4" fill="#3b82f6"/>
-        <path
-          fill="#3b82f6"
-          d="M12 14c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"
-        />
-      </svg>
-    `,
+    html: `<span style="font-size: ${selected ? '2rem' : '1.5rem'}; cursor: pointer; filter: ${selected ? 'drop-shadow(0 0 6px rgba(59,130,246,0.9))' : 'none'}; transition: all 0.2s ease;">🧑‍🚒</span>`,
     iconSize: [selected ? 44 : 32, selected ? 44 : 32],
     iconAnchor: [selected ? 22 : 16, selected ? 22 : 16],
   })

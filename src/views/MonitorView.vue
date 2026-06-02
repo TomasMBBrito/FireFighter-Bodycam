@@ -14,12 +14,15 @@ monitorStore.createStreamURLs()
 
 const gridCols = computed(() => {
     const n = monitorStore.streamURLs.length
-    return Math.min(4, Math.max(2, Math.ceil(Math.sqrt(n))))
+
+    if (n === 1) return 1
+    if (n <= 4) return 2
+    if (n <= 9) return 3
+    return 4
 })
 
 const gridStyle = computed(() => ({
-    display: "grid",
-    gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`,
+    gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`
 }))
 
 onUnmounted(() => {
@@ -34,9 +37,9 @@ onUnmounted(() => {
         <!-- Grid de cards -->
         <Card class="p-4 w-[90vw] max-w-6xl">
             <CardContent class="p-0">
-                <div class="grid gap-3 w-full" :style="gridStyle">
+                <div class="grid gap-3 w-full items-start" :style="gridStyle">
                     <FirefighterCard v-for="(ff, index) in monitorStore.firefightersList" :key="ff.firefighterId"
-                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" />
+                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" class="w-full" />
                 </div>
             </CardContent>
         </Card>
