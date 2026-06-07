@@ -10,6 +10,7 @@ import FirefightersView from '@/views/FirefightersView.vue'
 import FirefighterLiveView from '@/views/FirefighterLiveView.vue'
 import HistoryView from '@/views/HistoryView.vue'
 import MissionHistoryView from '@/views/MissionHistoryView.vue'
+import MissionEditView from '@/views/MissionEditView.vue'
 import FootageView from '@/views/FootageView.vue'
 
 const router = createRouter({
@@ -46,8 +47,11 @@ const router = createRouter({
       path:'/history/footage/:missionId/:firefighterId', name: 'FootageView', component: FootageView
     },
     {
-      path: '/missions/edit/:id',
-      component: () => import('@/views/MissionEditView.vue')
+      path: '/missions/edit/:id', name: 'MissionEditView', component: MissionEditView
+    },
+    {
+      path: '/stream-test',
+      component: () => import('@/views/TestStreams.vue')
     }
   ],
 })
