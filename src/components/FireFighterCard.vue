@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { API_BASE_URL } from '@/config/env'
+import { Input } from '@/components/ui/input'
 
 const props = defineProps({
     firefighter: Object,
@@ -29,6 +30,8 @@ const t = computed(() =>
         props.firefighter.firefighterId
     )
 )
+
+const customTTS = ref('')
 
 let pathLine = null
 const pathPoints = []
@@ -60,6 +63,12 @@ const ttsButtons = computed(() => [
         message: `${props.firefighter.name} reporta o teu estado já.`
     }
 ])
+
+const sendCustomTTS = () => {
+    if (!customTTS.value.trim()) return
+    sendTTS(customTTS.value.trim())
+    customTTS.value = ''
+}
 
 const sendTTS = async (text) => {
     try {
@@ -292,11 +301,24 @@ const bearingLabel = computed(() => {
         </div>
 
         <!-- Text to speech buttons -->
-        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2">
-            <Button v-for="btn in ttsButtons" :key="btn.message" size="sm" variant="outline"
-                @click="sendTTS(btn.message)">
-                {{ btn.label }}
-            </Button>
+        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-col gap-2">
+            <div class="flex flex-wrap gap-2">
+                <Button v-for="btn in ttsButtons" :key="btn.message" size="sm" variant="outline"
+                    @click="sendTTS(btn.message)">
+                    {{ btn.label }}
+                </Button>
+            </div>
+
+            <div class="flex gap-2">
+                <Input
+                    v-model="customTTS"
+                    placeholder="Custom message..."
+                    @keydown.enter="sendCustomTTS"
+                />
+                <Button size="sm" @click="sendCustomTTS">
+                    Send
+                </Button>
+            </div>
         </div>
     </div>
 </template>
