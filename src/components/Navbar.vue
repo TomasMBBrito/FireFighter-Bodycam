@@ -15,6 +15,7 @@ const links = [
     { label: 'Map', path: '/' },
     { label: 'Missions', path: '/missions' },
     { label: 'Firefighters', path: '/firefighters' },
+    { label: 'Stations', path: '/stations'},
     { label: 'History', path: '/history' },
 ]
 </script>
@@ -39,6 +40,9 @@ const links = [
                     </DropdownMenuItem>
                     <DropdownMenuItem @click="router.push('/users/create')">
                         Create User
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="router.push('/stations/create')">
+                        Create Station
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

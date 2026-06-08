@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,16 +17,29 @@ const email = ref('')
 const password = ref('')
 const role = ref('')
 
+const stationId = ref(null)
+const stations = ref([])
+
+const needsStation = computed(() =>
+    role.value === 'Firefighter' || role.value === 'Vehicle'
+)
+
+const loadStations = async () => {
+    const res = await fetch(`${API_BASE_URL}/api/Station`)
+    stations.value = await res.json()
+    console.log('stations:', stations.value)
+}
+
 const submit = async () => {
+    console.log('stationId:', stationId.value)
     const payload = {
         username: username.value,
         name: name.value,
         email: email.value,
         password: password.value,
-        role: role.value
+        role: role.value,
+        ...(needsStation.value && { stationId: stationId.value })
     }
-
-    console.log('Sending:', payload)
 
     const res = await fetch(`${API_BASE_URL}/api/User`, {
         method: 'POST',
@@ -34,13 +47,12 @@ const submit = async () => {
         body: JSON.stringify(payload)
     })
 
-    const data = await res.json()
-    console.log('Response:', data)
-
     if (res.ok) {
-        router.push('/')
+        router.push('/firefighters')
     }
 }
+
+onMounted(loadStations)
 </script>
 
 <template>
@@ -63,6 +75,24 @@ const submit = async () => {
                 <SelectItem value="Vehicle">Vehicle</SelectItem>
             </SelectContent>
         </Select>
+
+        <Select v-if="needsStation" v-model="stationId" @update:modelValue="val => console.log('station selected:', val)">
+            <SelectTrigger>
+                <SelectValue placeholder="Station" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem v-for="s in stations" :key="s.id" :value="s.id">
+                    {{ s.name }}
+                </SelectItem>
+            </SelectContent>
+        </Select>
+
+        <!-- <select v-if="needsStation" v-model="stationId" class="w-full border rounded px-3 py-2 bg-background text-sm">
+            <option :value="null" disabled>Select Station</option>
+            <option v-for="s in stations" :key="s.stationId" :value="s.stationId">
+                {{ s.name }}
+            </option>
+        </select> -->
 
         <Button @click="submit">Create User</Button>
 

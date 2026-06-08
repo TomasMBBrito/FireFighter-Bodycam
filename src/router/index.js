@@ -12,6 +12,8 @@ import HistoryView from '@/views/HistoryView.vue'
 import MissionHistoryView from '@/views/MissionHistoryView.vue'
 import MissionEditView from '@/views/MissionEditView.vue'
 import FootageView from '@/views/FootageView.vue'
+import StationsView from '@/views/StationsView.vue'
+import CreateStationView from '@/views/CreateStationView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +50,12 @@ const router = createRouter({
     },
     {
       path: '/missions/edit/:id', name: 'MissionEditView', component: MissionEditView
+    },
+    {
+      path: '/stations', component: StationsView
+    },
+    {
+      path: '/stations/create', component: CreateStationView
     },
     {
       path: '/stream-test',
