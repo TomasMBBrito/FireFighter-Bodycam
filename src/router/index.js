@@ -14,6 +14,7 @@ import MissionEditView from '@/views/MissionEditView.vue'
 import FootageView from '@/views/FootageView.vue'
 import StationsView from '@/views/StationsView.vue'
 import CreateStationView from '@/views/CreateStationView.vue'
+import FirefighterEditView from '@/views/FirefighterEditView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,9 @@ const router = createRouter({
     },
     {
       path: '/stations/create', component: CreateStationView
+    },
+    {
+      path: '/firefighters/:id/edit', name: 'UserEditView', component: FirefighterEditView
     },
     {
       path: '/stream-test',

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted,computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   Table, TableBody, TableCell, TableHead,
@@ -81,6 +81,16 @@ const loadFirefighters = async () => {
   firefighters.value = await res.json()
   console.log('Loaded firefighters:', firefighters.value)
 }
+
+const firefightersByStation = computed(() => {
+    const groups = {}
+    firefighters.value.forEach(ff => {
+        const station = ff.station ?? 'Unknown'
+        if (!groups[station]) groups[station] = []
+        groups[station].push(ff)
+    })
+    return groups
+})
 
 const toggleFirefighter = (ff) => {
   const idx = selectedFirefighters.value.findIndex(f => f.firefighterId === ff.firefighterId)
@@ -196,32 +206,42 @@ onUnmounted(() => {
 
         <!-- Firefighters table -->
         <div v-if="showFirefighters" class="flex flex-col flex-1 p-4 gap-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead class="w-10">Watch</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Stream</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="ff in firefighters" :key="ff.firefighterId">
-                <TableCell>
-                  <Checkbox :disabled="!ff.streaming"
-                    :checked="selectedFirefighters.some(f => f.firefighterId === ff.firefighterId)"
-                    @click="() => !ff.streaming ? null : toggleFirefighter(ff)" />
-                </TableCell>
-                <TableCell>{{ ff.name }}</TableCell>
-                <TableCell>{{ ff.roleInMission }}</TableCell>
-                <TableCell>
-                  <Badge :variant="ff.streaming ? 'default' : 'secondary'">
-                    {{ ff.streaming ? 'Live' : 'Offline' }}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          <div v-for="(ffs, station) in firefightersByStation" :key="station" class="flex flex-col gap-2">
+
+            <h3 class="font-semibold text-sm text-muted-foreground uppercase tracking-wide px-1">
+              {{ station }}
+            </h3>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="w-10">Watch</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Stream</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="ff in ffs" :key="ff.firefighterId">
+                  <TableCell>
+                    <Checkbox
+                      :disabled="!ff.streaming"
+                      :checked="selectedFirefighters.some(f => f.firefighterId === ff.firefighterId)"
+                      @click="() => !ff.streaming ? null : toggleFirefighter(ff)"
+                    />
+                  </TableCell>
+                  <TableCell>{{ ff.name }}</TableCell>
+                  <TableCell>{{ ff.roleInMission }}</TableCell>
+                  <TableCell>
+                    <Badge :variant="ff.streaming ? 'default' : 'secondary'">
+                      {{ ff.streaming ? 'Live' : 'Offline' }}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+
+          </div>
 
           <Button class="w-full mt-auto" :disabled="selectedFirefighters.length === 0" @click="watchFirefighterCameras">
             Watch Selected Cameras ({{ selectedFirefighters.length }})

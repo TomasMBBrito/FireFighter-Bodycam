@@ -60,6 +60,7 @@ loadFirefighters()
                         <TableRow>
                             <TableHead class="w-10"></TableHead>
                             <TableHead>Name</TableHead>
+                            <TableHead class="w-10"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -69,6 +70,11 @@ loadFirefighters()
                                 <Checkbox :checked="isSelected(ff)" :disabled="!ff.streaming" />
                             </TableCell>
                             <TableCell class="font-medium">{{ ff.name }}</TableCell>
+                            <TableCell>
+                                <Button size="sm" @click.stop="router.push(`/firefighters/${ff.userId}/edit`)">
+                                    Edit
+                                </Button>
+                            </TableCell>
                         </TableRow>
                         <TableRow v-if="firefighters.length === 0">
                             <TableCell colspan="2" class="text-center text-muted-foreground py-8">
