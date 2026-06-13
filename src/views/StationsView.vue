@@ -17,6 +17,21 @@ const loadStations = async () => {
     stations.value = await res.json()
 }
 
+const deleteStation = async (station) => {
+    if (!confirm(`Tens a certeza que queres eliminar ${station.name}?`)) return
+
+    const res = await fetch(`${API_BASE_URL}/api/Station/${station.id}`, {
+        method: 'DELETE'
+    })
+
+    if (res.ok) {
+        stations.value = stations.value.filter(s => s.id !== station.id)
+    } else {
+        const msg = await res.text()
+        alert(msg || 'Erro ao eliminar estação')
+    }
+}
+
 loadStations()
 </script>
 
@@ -43,9 +58,14 @@ loadStations()
                             <TableCell class="font-medium">{{ station.name }}</TableCell>
                             <TableCell>{{ station.location }}</TableCell>
                             <TableCell>
-                                <Button size="sm" @click="router.push(`/stations/${station.id}/edit`)">
-                                    Edit
-                                </Button>
+                                <div class="flex gap-2">
+                                    <Button size="sm" @click="router.push(`/stations/${station.id}/edit`)">
+                                        Edit
+                                    </Button>
+                                    <Button size="sm" variant="destructive" @click="deleteStation(station)">
+                                        Delete
+                                    </Button>
+                                </div>
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="stations.length === 0">

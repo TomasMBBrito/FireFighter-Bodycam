@@ -43,6 +43,18 @@ const goToWatchLive = () => {
     })
 }
 
+const deleteUser = async (ff) => {
+    if (!confirm(`Are you sure that you want to delete ${ff.name}?`)) return
+
+    const res = await fetch(`${API_BASE_URL}/api/User/${ff.userId}`, {
+        method: 'DELETE'
+    })
+
+    if (res.ok) {
+        firefighters.value = firefighters.value.filter(f => f.userId !== ff.userId)
+    }
+}
+
 loadFirefighters()
 </script>
 <template>
@@ -71,9 +83,14 @@ loadFirefighters()
                             </TableCell>
                             <TableCell class="font-medium">{{ ff.name }}</TableCell>
                             <TableCell>
-                                <Button size="sm" @click.stop="router.push(`/firefighters/${ff.userId}/edit`)">
-                                    Edit
-                                </Button>
+                                <div class="flex gap-2">
+                                    <Button size="sm" @click.stop="router.push(`/firefighters/${ff.userId}/edit`)">
+                                        Edit
+                                    </Button>
+                                    <Button size="sm" variant="destructive" @click.stop="deleteUser(ff)">
+                                        Delete
+                                    </Button>
+                                </div>
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="firefighters.length === 0">
