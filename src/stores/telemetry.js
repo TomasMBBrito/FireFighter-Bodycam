@@ -5,7 +5,9 @@ import { useSosStore } from '@/stores/sos'
 import { WS_SERVER_URL } from '@/config/env'
 
 export const useTelemetryStore = defineStore('telemetry', () => {
-    const telemetry_map = ref({}) 
+    const telemetry_map = ref({})
+    const network_map = ref({})
+    const snapshot_map = ref({})
     const sockets = {}
 
     const connect = (firefighterID) => {
@@ -32,12 +34,25 @@ export const useTelemetryStore = defineStore('telemetry', () => {
                 sosStore.trigger_sos(data.FirefighterId)
                 return
             }
+
+            if (data.Type === 'NETWORK') {
+                network_map.value[firefighterID] = data
+                return
+            }
+
+            if (data.Type === 'SNAPSHOT') {
+                snapshot_map.value[firefighterID] = data
+                return
+            }
+
             telemetry_map.value[firefighterID] = data
             //console.log('[Telemetria]', data)
         }
 
         socket.onclose = () => {
             telemetry_map.value[firefighterID] = null
+            network_map.value[firefighterID] = null
+            snapshot_map.value[firefighterID] = null
             delete sockets[firefighterID]
         }
 
@@ -68,7 +83,25 @@ export const useTelemetryStore = defineStore('telemetry', () => {
         return telemetry_map.value[firefighterId] ?? null
     }
 
-    return { telemetry_map, connect, disconnect, disconnectAll,getTelemetry }
+    const getNetwork = (firefighterId) => {
+        return network_map.value[firefighterId] ?? null
+    }
+
+    const getSnapshot = (firefighterId) => {
+        return snapshot_map.value[firefighterId] ?? null
+    }
+
+    return {
+        telemetry_map,
+        network_map,
+        snapshot_map,
+        connect,
+        disconnect,
+        disconnectAll,
+        getTelemetry,
+        getNetwork,
+        getSnapshot
+    }
 
 
 })

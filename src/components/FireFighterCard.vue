@@ -31,6 +31,15 @@ const t = computed(() =>
     )
 )
 
+const snapshot = computed(() =>
+    telemetryStore.getSnapshot(props.firefighter.firefighterId)
+)
+
+const snapshotUrl = computed(() => {
+    if (!snapshot.value?.SnapshotUrl) return null
+    return `${API_BASE_URL}${snapshot.value.SnapshotUrl}?t=${snapshot.value.Timestamp}`
+})
+
 const customTTS = ref('')
 
 let pathLine = null
@@ -248,7 +257,9 @@ const bearingLabel = computed(() => {
     <div class="w-full rounded-lg overflow-hidden border border-border">
         <!-- Video -->
         <div class="relative aspect-video bg-black">
-            <VideoStream :stream-path="streamPath" class="w-full h-full object-cover" />
+            <VideoStream v-if="!snapshotUrl" :stream-path="streamPath" class="w-full h-full object-cover" />
+            <img v-else :src="snapshotUrl" :key="snapshot.Timestamp" class="w-full h-full object-cover"
+                alt="Snapshot" />
 
             <div v-if="leafletReady" ref="mapContainer"
                 class="absolute bottom-2 right-2 w-52 h-40 rounded-lg overflow-hidden border-2 border-white shadow-xl z-20 bg-white" />
@@ -310,11 +321,7 @@ const bearingLabel = computed(() => {
             </div>
 
             <div class="flex gap-2">
-                <Input
-                    v-model="customTTS"
-                    placeholder="Custom message..."
-                    @keydown.enter="sendCustomTTS"
-                />
+                <Input v-model="customTTS" placeholder="Custom message..." @keydown.enter="sendCustomTTS" />
                 <Button size="sm" @click="sendCustomTTS">
                     Send
                 </Button>
