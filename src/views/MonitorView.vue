@@ -1,48 +1,55 @@
 <script setup>
 import { computed, onUnmounted } from 'vue'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import FirefighterCard from '@/components/FireFighterCard.vue'
 import { useMonitorStore } from '@/stores/monitor'
 import { useTelemetryStore } from '@/stores/telemetry'
 
 const monitorStore = useMonitorStore()
 const telemetryStore = useTelemetryStore()
-
 monitorStore.createStreamURLs()
 
 const gridCols = computed(() => {
-    const n = monitorStore.streamURLs.length
-
-    if (n === 1) return 1
-    if (n <= 4) return 2
-    if (n <= 9) return 3
-    return 4
+  const n = monitorStore.streamURLs.length
+  if (n === 1) return 1
+  if (n <= 4) return 2
+  if (n <= 9) return 3
+  return 4
 })
 
 const gridStyle = computed(() => ({
-    gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`
+  gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`
 }))
 
 onUnmounted(() => {
-    telemetryStore.disconnectAll()
-    monitorStore.reset()
+  telemetryStore.disconnectAll()
+  monitorStore.reset()
 })
 </script>
 
 <template>
-    <div class="flex flex-col items-center gap-4 p-4 bg-muted min-h-0 overflow-y-auto">
+  <div class="min-h-screen bg-[#0D1526] p-6 flex flex-col gap-5">
 
-        <!-- Grid de cards -->
-        <Card class="p-4 w-[90vw] max-w-6xl">
-            <CardContent class="p-0">
-                <div class="grid gap-3 w-full items-start" :style="gridStyle">
-                    <FirefighterCard v-for="(ff, index) in monitorStore.firefightersList" :key="ff.firefighterId"
-                        :firefighter="ff" :stream-path="monitorStore.streamURLs[index]" class="w-full" />
-                </div>
-            </CardContent>
-        </Card>
-
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-lg font-semibold text-white">Live Cameras</h1>
+      <span class="text-xs text-slate-500">
+        {{ monitorStore.firefightersList.length }} stream{{ monitorStore.firefightersList.length !== 1 ? 's' : '' }} active
+      </span>
     </div>
+
+    <!-- Grid -->
+    <div
+      class="grid gap-3 w-full items-start"
+      :style="gridStyle"
+    >
+      <FirefighterCard
+        v-for="(ff, index) in monitorStore.firefightersList"
+        :key="ff.firefighterId"
+        :firefighter="ff"
+        :stream-path="monitorStore.streamURLs[index]"
+        class="w-full"
+      />
+    </div>
+
+  </div>
 </template>

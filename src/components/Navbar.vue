@@ -15,33 +15,61 @@ const links = [
     { label: 'Map', path: '/' },
     { label: 'Missions', path: '/missions' },
     { label: 'Firefighters', path: '/firefighters' },
-    { label: 'Stations', path: '/stations'},
+    { label: 'Stations', path: '/stations' },
     { label: 'History', path: '/history' },
 ]
 </script>
 
 <template>
-    <nav class="w-full border-b bg-background px-6 py-3 flex items-center justify-between">
-        <span class="font-bold text-lg"></span>
+    <nav class="w-full border-b border-[#1E3A5F] bg-[#0D1526] px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="text-red-500 text-xl">🔥</span>
+            <span class="font-semibold text-white text-sm tracking-wide">Fire Monitor</span>
+        </div>
 
-        <div class="flex gap-2">
-            <Button v-for="link in links" :key="link.path" :variant="route.path === link.path ? 'default' : 'ghost'"
-                @click="router.push(link.path)">
+        <div class="flex gap-1">
+            <Button
+                v-for="link in links"
+                :key="link.path"
+                :variant="route.path === link.path ? 'default' : 'ghost'"
+                class="text-sm transition-colors"
+                :class="route.path === link.path
+                    ? 'bg-blue-700 hover:bg-blue-600 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-[#162035]'"
+                @click="router.push(link.path)"
+            >
                 {{ link.label }}
             </Button>
 
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <Button variant="ghost">Create</Button>
+                    <Button
+                        variant="ghost"
+                        class="text-sm text-slate-400 hover:text-white hover:bg-[#162035] transition-colors"
+                    >
+                        + Create
+                    </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem @click="router.push('/missions/create')">
+                <DropdownMenuContent
+                    align="end"
+                    class="bg-[#0D1526] border border-[#1E3A5F] text-slate-300"
+                >
+                    <DropdownMenuItem
+                        class="hover:bg-[#162035] hover:text-white cursor-pointer"
+                        @click="router.push('/missions/create')"
+                    >
                         Create Mission
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="router.push('/users/create')">
+                    <DropdownMenuItem
+                        class="hover:bg-[#162035] hover:text-white cursor-pointer"
+                        @click="router.push('/users/create')"
+                    >
                         Create User
                     </DropdownMenuItem>
-                    <DropdownMenuItem @click="router.push('/stations/create')">
+                    <DropdownMenuItem
+                        class="hover:bg-[#162035] hover:text-white cursor-pointer"
+                        @click="router.push('/stations/create')"
+                    >
                         Create Station
                     </DropdownMenuItem>
                 </DropdownMenuContent>

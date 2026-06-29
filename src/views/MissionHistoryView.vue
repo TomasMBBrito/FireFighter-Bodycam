@@ -2,108 +2,119 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-    Table, TableBody, TableCell, TableHead,
-    TableHeader, TableRow
+  Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-
+import { Badge } from '@/components/ui/badge'
 import { API_BASE_URL } from '@/config/env'
 
 const missions = ref([])
 const route = useRoute()
 const router = useRouter()
 const loading = ref(true)
-
 const userId = route.params.userId
 const firefighterId = route.params.firefighterId
 
 onMounted(async () => {
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/user/${userId}/missions`)
-        const all = await res.json()
-        missions.value = all
-        console.log('Missions for user', userId, missions.value)
-    } catch (e) {
-        console.error('Failed to fetch mission history:', e)
-    } finally {
-        loading.value = false
-    }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/user/${userId}/missions`)
+    missions.value = await res.json()
+  } catch (e) {
+    console.error('Failed to fetch mission history:', e)
+  } finally {
+    loading.value = false
+  }
 })
 
 const viewFootage = (mission) => {
-    router.push({
-        name: 'FootageView',
-        params: { missionId: mission.missionId, firefighterId: firefighterId }
-    })
+  router.push({
+    name: 'FootageView',
+    params: { missionId: mission.missionId, firefighterId }
+  })
 }
 </script>
 
 <template>
-    <div class="p-6 flex flex-col gap-4">
-        <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold">Mission History</h1>
-        </div>
+  <div class="p-6 flex flex-col gap-5">
 
-        <div v-if="loading" class="text-muted-foreground text-sm">
-            Loading...
-        </div>
-
-        <div v-else-if="missions.length === 0" class="text-muted-foreground text-sm">
-            No missions found.
-        </div>
-
-        <Table v-else>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Incident Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Started At</TableHead>
-                    <TableHead>Ended At</TableHead>
-                    <TableHead class="text-right">View Footage</TableHead>
-                </TableRow>
-            </TableHeader>
-
-            <TableBody>
-                <TableRow v-for="mission in missions" :key="mission.missionId">
-                    <TableCell class="font-medium">
-                        {{ mission.title }}
-                    </TableCell>
-
-                    <TableCell>
-                        {{ mission.location }}
-                    </TableCell>
-
-                    <TableCell>
-                        {{ mission.incidentType }}
-                    </TableCell>
-
-                    <TableCell>
-                        {{ mission.status === 0 ? 'Active' : 'Completed' }}
-                    </TableCell>
-
-                    <TableCell>
-                        {{
-                            new Date(mission.startedAt).toLocaleString()
-                        }}
-                    </TableCell>
-
-                    <TableCell>
-                        {{
-                            mission.endedAt
-                                ? new Date(mission.endedAt).toLocaleString()
-                                : 'Ongoing'
-                        }}
-                    </TableCell>
-
-                    <TableCell class="text-right">
-                        <Button size="sm" @click="viewFootage(mission)">
-                            View Footage
-                        </Button>
-                    </TableCell>
-                </TableRow>
-            </TableBody>
-        </Table>
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-lg font-semibold text-white">Mission History</h1>
     </div>
+
+    <!-- Loading -->
+    <div v-if="loading" class="text-slate-500 text-sm">Loading...</div>
+
+    <!-- Empty -->
+    <div v-else-if="missions.length === 0" class="text-slate-500 text-sm">No missions found.</div>
+
+    <!-- Table -->
+    <Table v-else>
+      <TableHeader>
+        <TableRow class="border-[#1E3A5F] hover:bg-transparent">
+          <TableHead class="text-slate-500 text-xs">Title</TableHead>
+          <TableHead class="text-slate-500 text-xs">Location</TableHead>
+          <TableHead class="text-slate-500 text-xs">Type</TableHead>
+          <TableHead class="text-slate-500 text-xs">Status</TableHead>
+          <TableHead class="text-slate-500 text-xs">Started At</TableHead>
+          <TableHead class="text-slate-500 text-xs">Ended At</TableHead>
+          <TableHead class="text-slate-500 text-xs text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        <TableRow
+          v-for="mission in missions"
+          :key="mission.missionId"
+          class="border-[#1E3A5F] hover:bg-[#162035] transition-colors"
+        >
+          <TableCell class="py-2 text-sm font-medium text-white">{{ mission.title }}</TableCell>
+
+          <TableCell class="py-2 text-sm text-slate-400">{{ mission.location }}</TableCell>
+
+          <TableCell class="py-2">
+            <Badge
+              class="text-xs border"
+              :class="mission.incidentType === 'Solo'
+                ? 'bg-blue-950 text-blue-300 border-blue-800'
+                : 'bg-red-950 text-red-300 border-red-900'"
+            >
+              {{ mission.incidentType }}
+            </Badge>
+          </TableCell>
+
+          <TableCell class="py-2">
+            <Badge
+              class="text-xs border"
+              :class="mission.status === 0
+                ? 'bg-emerald-950 text-emerald-400 border-emerald-900'
+                : 'bg-[#162035] text-slate-500 border-[#1E3A5F]'"
+            >
+              {{ mission.status === 0 ? 'Active' : 'Completed' }}
+            </Badge>
+          </TableCell>
+
+          <TableCell class="py-2 text-sm text-slate-400">
+            {{ new Date(mission.startedAt).toLocaleString() }}
+          </TableCell>
+
+          <TableCell class="py-2 text-sm text-slate-400">
+            {{ mission.endedAt ? new Date(mission.endedAt).toLocaleString() : 'Ongoing' }}
+          </TableCell>
+
+          <TableCell class="py-2 text-right">
+            <Button
+              size="sm"
+              class="text-xs bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F] transition-colors"
+              @click="viewFootage(mission)"
+            >
+              View Footage
+            </Button>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+
+  </div>
 </template>

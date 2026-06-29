@@ -4,5 +4,7 @@ import NavBar from '@/components/Navbar.vue'
 
 <template>
   <NavBar />
-  <RouterView />
+  <div class="min-h-screen bg-[#0D1526]">
+    <RouterView />
+  </div>
 </template>
