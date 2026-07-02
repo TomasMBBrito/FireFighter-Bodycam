@@ -288,25 +288,25 @@ const bearingLabel = computed(() => {
         </div>
 
         <!-- Telemetry -->
-        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2 items-center">
-            <Badge variant="outline">
+        <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2 items-center text-white">
+            <Badge variant="outline" class="text-white">
                 {{ t.ActivityState ?? 'N/A' }}
             </Badge>
 
-            <Badge variant="outline">
+            <Badge variant="outline" class="text-white">
                 {{ t.IsMoving ? 'Moving' : 'Stationary' }}
             </Badge>
 
-            <Badge variant="outline">
+            <Badge variant="outline" class="text-white">
                 Motion: {{ motionLevelLabel }}
             </Badge>
 
-            <Badge v-if="bearingLabel" variant="outline">
+            <Badge v-if="bearingLabel" variant="outline" class="text-white">
                 ↑ {{ bearingLabel }} ({{ Math.round(t.CompassBearing) }}°)
             </Badge>
 
             <Badge v-if="t.GpsLat != null && t.GpsLng != null && leafletReady" variant="outline"
-                class="font-mono cursor-pointer hover:bg-accent">
+                class="font-mono text-white">
                 {{ t.GpsLat?.toFixed(5) }}, {{ t.GpsLng?.toFixed(5) }}
             </Badge>
         </div>
