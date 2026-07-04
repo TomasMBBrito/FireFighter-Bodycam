@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,29 +16,27 @@ const stationId = ref(null)
 const stations = ref([])
 const loading = ref(true)
 
-const loadData = async () => {
-  const [userRes, stationsRes] = await Promise.all([
-    fetch(`${API_BASE_URL}/api/User/${userId}`),
-    fetch(`${API_BASE_URL}/api/Station`)
+onMounted(async () => {
+  const [user, stationsData] = await Promise.all([
+    api.get(`/api/User/${userId}`),
+    api.get('/api/Station')
   ])
-  const user = await userRes.json()
-  stations.value = await stationsRes.json()
   name.value = user.name
   email.value = user.email
   stationId.value = user.stationId ?? null
+  stations.value = stationsData
   loading.value = false
-}
+})
 
 const submit = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/User/${userId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name.value, email: email.value, stationId: stationId.value })
+  await api.put(`/api/User/${userId}`, {
+    name: name.value,
+    email: email.value,
+    stationId: stationId.value
   })
-  if (res.ok) router.push('/firefighters')
+  
+  router.push('/firefighters')
 }
-
-onMounted(loadData)
 </script>
 
 <template>

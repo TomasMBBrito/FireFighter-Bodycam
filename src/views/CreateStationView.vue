@@ -4,18 +4,15 @@ import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const name = ref('')
 const location = ref('')
 
 const submit = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Station`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name.value, location: location.value })
-  })
-  if (res.ok) router.push('/stations')
+  await api.post('/api/Station', { name: name.value, location: location.value })
+  router.push('/stations')
 }
 </script>
 

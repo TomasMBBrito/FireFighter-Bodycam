@@ -7,24 +7,19 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const stations = ref([])
 
 const loadStations = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Station`)
-  stations.value = await res.json()
+  stations.value = await api.get('/api/Station')
 }
 
 const deleteStation = async (station) => {
-  if (!confirm(`Tens a certeza que queres eliminar ${station.name}?`)) return
-  const res = await fetch(`${API_BASE_URL}/api/Station/${station.id}`, { method: 'DELETE' })
-  if (res.ok) {
-    stations.value = stations.value.filter(s => s.id !== station.id)
-  } else {
-    const msg = await res.text()
-    alert(msg || 'Erro ao eliminar estação')
-  }
+  if (!confirm(`Are you sure that you want to delete the ${station.name}?`)) return
+  await api.delete(`/api/Station/${station.id}`)
+  stations.value = stations.value.filter(s => s.id !== station.id)
 }
 
 loadStations()

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const title = ref('')
@@ -15,24 +16,20 @@ const longitude = ref('')
 const commanders = ref([])
 
 onMounted(async () => {
-  const res = await fetch(`${API_BASE_URL}/api/User/commanders`)
-  commanders.value = await res.json()
+  commanders.value = await api.get('/api/User/commanders')
 })
 
 const submit = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Mission`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: title.value,
-      location: location.value,
-      incidentType: incidentType.value,
-      commanderId: commanderId.value,
-      latitude: parseFloat(latitude.value),
-      longitude: parseFloat(longitude.value),
-    })
+  await api.post('/api/Mission', {
+    title: title.value,
+    location: location.value,
+    incidentType: incidentType.value,
+    commanderId: commanderId.value,
+    latitude: parseFloat(latitude.value),
+    longitude: parseFloat(longitude.value),
   })
-  if (res.ok) router.push('/missions')
+  router.push('/missions')
+  //if (res.ok) router.push('/missions')
 }
 </script>
 

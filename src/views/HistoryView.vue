@@ -7,20 +7,15 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const firefighters = ref([])
 const router = useRouter()
 const loading = ref(true)
 
 onMounted(async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/User/firefighters`)
-    firefighters.value = await res.json()
-  } catch (e) {
-    console.error('Failed to fetch firefighters:', e)
-  } finally {
-    loading.value = false
-  }
+  firefighters.value = await api.get('/api/User/firefighters')
+  loading.value = false
 })
 
 const viewMissionHistory = (firefighter) => {

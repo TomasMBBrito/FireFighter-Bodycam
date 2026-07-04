@@ -9,14 +9,14 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const firefighters = ref([])
 const selected = ref([])
 
 const loadFirefighters = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/User/firefighters`)
-  firefighters.value = await res.json()
+  firefighters.value = await api.get('/api/User/firefighters')
 }
 
 const toggle = (ff) => {
@@ -40,11 +40,9 @@ const goToWatchLive = () => {
 
 const deleteUser = async (ff) => {
   if (!confirm(`Are you sure that you want to delete ${ff.name}?`)) return
-  const res = await fetch(`${API_BASE_URL}/api/User/${ff.userId}`, { method: 'DELETE' })
-  if (res.ok) {
-    firefighters.value = firefighters.value.filter(f => f.userId !== ff.userId)
-    selected.value = selected.value.filter(f => f.userId !== ff.userId)
-  }
+  await api.delete(`/api/User/${ff.userId}`)
+  firefighters.value = firefighters.value.filter(f => f.userId !== ff.userId)
+  selected.value = selected.value.filter(f => f.userId !== ff.userId)
 }
 
 loadFirefighters()

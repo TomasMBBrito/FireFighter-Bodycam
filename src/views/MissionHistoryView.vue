@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const missions = ref([])
 const route = useRoute()
@@ -18,8 +19,7 @@ const firefighterId = route.params.firefighterId
 
 onMounted(async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/user/${userId}/missions`)
-    missions.value = await res.json()
+    missions.value = await api.get(`/api/user/${userId}/missions`)
   } catch (e) {
     console.error('Failed to fetch mission history:', e)
   } finally {

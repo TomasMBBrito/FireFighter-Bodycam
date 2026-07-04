@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,8 +17,7 @@ const firefighterCount = ref(0)
 const loading = ref(true)
 
 const loadStation = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Station/${stationId}`)
-  const data = await res.json()
+  const data = await api.get(`/api/Station/${stationId}`)
   name.value = data.name
   location.value = data.location
   firefighterCount.value = data.firefighterCount
@@ -25,12 +25,8 @@ const loadStation = async () => {
 }
 
 const submit = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Station/${stationId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name.value, location: location.value })
-  })
-  if (res.ok) router.push('/stations')
+  await api.put(`/api/Station/${stationId}`, { name: name.value, location: location.value })
+  router.push('/stations')
 }
 
 onMounted(loadStation)

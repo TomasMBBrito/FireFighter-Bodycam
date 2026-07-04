@@ -8,6 +8,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const missions = ref([])
@@ -26,37 +27,20 @@ const editMission = (mission) => router.push({ path: `/missions/edit/${mission.m
 const watchMissionCameras = (mission) => router.push({ path: '/missions/cameras', query: { missionId: mission.missionId } })
 
 const watchLive = async (mission) => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/Mission/${mission.missionId}/firefighters`)
-    if (!res.ok) return
-    const firefighters = await res.json()
-    const ids = firefighters.map(ff => ff.firefighterId).join(',')
-    const names = firefighters.map(ff => ff.name).join(',')
-    router.push({ path: 'firefighters/live', query: { ids, names } })
-  } catch (e) {
-    console.error('Failed to fetch firefighters for mission:', e)
-  }
+  const firefighters = await api.get(`/api/Mission/${mission.missionId}/firefighters`)
+  const ids = firefighters.map(ff => ff.firefighterId).join(',')
+  const names = firefighters.map(ff => ff.name).join(',')
+  router.push({ path: 'firefighters/live', query: { ids, names } })
 }
 
 onMounted(async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/Mission/status/Active`)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const all = await res.json()
-    for (const mission of all) {
-      try {
-        const ffRes = await fetch(`${API_BASE_URL}/api/Mission/${mission.missionId}/firefighters`)
-        if (!ffRes.ok) { mission.streaming = false; continue }
-        const firefighters = await ffRes.json()
-        mission.streaming = firefighters.length > 0 ? firefighters[0].streaming : false
-      } catch { mission.streaming = false }
-    }
-    missions.value = all
-  } catch (e) {
-    console.error('Failed to fetch missions:', e)
-  } finally {
-    loading.value = false
+  const all = await api.get('/api/Mission/status/Active')
+  for (const mission of all) {
+    const ffs = await api.get(`/api/Mission/${mission.missionId}/firefighters`).catch(() => [])
+    mission.streaming = ffs.length > 0 ? ffs[0].streaming : false
   }
+  missions.value = all
+  loading.value = false
 })
 </script>
 

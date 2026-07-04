@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useMonitorStore } from '@/stores/monitor'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const monitorStore = useMonitorStore()
@@ -89,8 +90,7 @@ const selectMission = async (mission) => {
 const loadFirefighters = async () => {
   if (!selectedMission.value) return
   showFirefighters.value = true
-  const res = await fetch(`${API_BASE_URL}/api/Mission/${selectedMission.value.missionId}/firefighters`)
-  firefighters.value = await res.json()
+  firefighters.value = await api.get(`/api/Mission/${selectedMission.value.missionId}/firefighters`)
 }
 
 const firefightersByStation = computed(() => {
@@ -130,12 +130,7 @@ const addMarkers = (L) => {
 }
 
 onMounted(async () => {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/Mission`)
-    missions.value = await res.json()
-  } catch (e) {
-    console.error('Failed to fetch missions:', e)
-  }
+  missions.value = await api.get('/api/Mission')
 
   const link = document.createElement('link')
   link.rel = 'stylesheet'

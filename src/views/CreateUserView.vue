@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const router = useRouter()
 const username = ref('')
@@ -19,24 +20,19 @@ const needsStation = computed(() =>
 )
 
 const loadStations = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/Station`)
-  stations.value = await res.json()
+  stations.value = await api.get('/api/Station')
 }
 
 const submit = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/User`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: username.value,
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      role: role.value,
-      ...(needsStation.value && { stationId: stationId.value })
-    })
+  await api.post('/api/User', {
+    username: username.value,
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    role: role.value,
+    ...(needsStation.value && { stationId: stationId.value })
   })
-  if (res.ok) router.push('/firefighters')
+  router.push('/firefighters')
 }
 
 onMounted(loadStations)
@@ -91,6 +87,7 @@ onMounted(loadStations)
             <option value="Monitor">Monitor</option>
             <option value="Firefighter">Firefighter</option>
             <option value="Vehicle">Vehicle</option>
+            <option value="Admin">Admin</option>
           </select>
         </div>
 

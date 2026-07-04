@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/stores/auth'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -10,6 +11,12 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
+
+function handleLogout() {
+  authStore.logout()
+  router.push('/login')
+}
 
 const links = [
     { label: 'Map', path: '/' },
@@ -39,6 +46,15 @@ const links = [
                 @click="router.push(link.path)"
             >
                 {{ link.label }}
+            </Button>
+
+            <Button
+                v-if="authStore.isLoggedIn"
+                variant="ghost"
+                class="text-slate-300 hover:text-white hover:bg-[#1E3A5F]"
+                @click="handleLogout"
+                >
+                logout
             </Button>
 
             <DropdownMenu>

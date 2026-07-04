@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,16 +21,16 @@ const statuses = ['Active', 'Completed', 'Cancelled']
 
 const loadData = async () => {
   try {
-    const [missionRes, firefightersRes, commandersRes, allFirefightersRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/api/Mission/${missionId}`),
-      fetch(`${API_BASE_URL}/api/Mission/${missionId}/firefighters`),
-      fetch(`${API_BASE_URL}/api/User/commanders`),
-      fetch(`${API_BASE_URL}/api/User/firefighters`)
+    const [m, ffs, cmds, allFfs] = await Promise.all([
+      api.get(`/api/Mission/${missionId}`),
+      api.get(`/api/Mission/${missionId}/firefighters`).catch(() => []),
+      api.get('/api/User/commanders'),
+      api.get('/api/User/firefighters')
     ])
-    mission.value = await missionRes.json()
-    firefighters.value = firefightersRes.ok ? await firefightersRes.json() : []
-    commanders.value = await commandersRes.json()
-    availableFirefighters.value = await allFirefightersRes.json()
+    mission.value = m
+    firefighters.value = ffs
+    commanders.value = cmds
+    availableFirefighters.value = allFfs
   } catch (err) {
     console.error(err)
   }
@@ -37,56 +38,28 @@ const loadData = async () => {
 
 const saveMission = async () => {
   const statusMap = { 'Active': 0, 'Completed': 1, 'Cancelled': 2 }
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/Mission/${missionId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: mission.value.title,
-        location: mission.value.location,
-        latitude: mission.value.latitude,
-        longitude: mission.value.longitude,
-        incidentType: mission.value.incidentType,
-        status: statusMap[mission.value.status],
-        commanderId: mission.value.commanderId
-      })
-    })
-    if (!res.ok) throw new Error()
-    router.push('/missions')
-  } catch (err) {
-    console.error(err)
-    alert('Failed to save mission')
-  }
+  await api.put(`/api/Mission/${missionId}`, {
+    title: mission.value.title,
+    location: mission.value.location,
+    latitude: mission.value.latitude,
+    longitude: mission.value.longitude,
+    incidentType: mission.value.incidentType,
+    status: statusMap[mission.value.status],
+    commanderId: mission.value.commanderId
+  })
+  router.push('/missions')
 }
 
 const removeFirefighter = async (firefighterId) => {
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/Mission/${missionId}/firefighters/${firefighterId}/remove`,
-      { method: 'PUT' }
-    )
-    if (!res.ok) throw new Error()
-    firefighters.value = firefighters.value.filter(x => x.firefighterId !== firefighterId)
-  } catch (err) {
-    console.error(err)
-  }
+  await api.put(`/api/Mission/${missionId}/firefighters/${firefighterId}/remove`)
+  firefighters.value = firefighters.value.filter(x => x.firefighterId !== firefighterId)
 }
 
 const addFirefighter = async () => {
   if (!selectedFirefighter.value) return
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/Mission/associate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ missionID: missionId, firefighterID: selectedFirefighter.value })
-    })
-    if (!res.ok) throw new Error()
-    await loadData()
-    selectedFirefighter.value = ''
-  } catch (err) {
-    console.error(err)
-    alert('Failed to add firefighter')
-  }
+  await api.post('/api/Mission/associate', { missionID: missionId, firefighterID: selectedFirefighter.value })
+  await loadData()
+  selectedFirefighter.value = ''
 }
 
 onMounted(loadData)
