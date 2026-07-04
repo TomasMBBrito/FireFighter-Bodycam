@@ -130,7 +130,7 @@ const addMarkers = (L) => {
 }
 
 onMounted(async () => {
-  missions.value = await api.get('/api/Mission')
+  missions.value = await api.get('/api/Mission/status/Active')
 
   const link = document.createElement('link')
   link.rel = 'stylesheet'

@@ -14,7 +14,7 @@ import VideoStream from '@/components/VideoStream.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 import { Input } from '@/components/ui/input'
 
 const props = defineProps({
@@ -81,22 +81,11 @@ const sendCustomTTS = () => {
 
 const sendTTS = async (text) => {
     try {
-        const res = await fetch(`${API_BASE_URL}/api/TextToSpeech`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                firefighterId: props.firefighter.firefighterId,
-                text
-            })
-        })
-        const data = JSON.stringify({
+        const data = await api.post('/api/TextToSpeech', {
             firefighterId: props.firefighter.firefighterId,
             text
         })
-        console.log('TTS message sent:', data)
-        console.log('TTS response:', res.status, await res.text())
+        console.log('TTS message sent, resposta:', data)
     } catch (error) {
         console.error('Failed to send TTS message:', error)
     }
@@ -268,12 +257,6 @@ const bearingLabel = computed(() => {
                 {{ firefighter.name }}
             </div>
 
-            <div v-if="t?.FallDetected" class="absolute top-2 right-2">
-                <Badge variant="destructive" class="animate-pulse text-xs">
-                    FALL DETECTED
-                </Badge>
-            </div>
-
             <div v-if="sosActive"
                 class="absolute inset-0 flex items-center justify-center z-10 bg-red-600/80 animate-pulse">
                 <Alert variant="destructive" class="w-fit border-2 border-white shadow-2xl bg-red-600 text-white">
@@ -299,6 +282,14 @@ const bearingLabel = computed(() => {
 
             <Badge variant="outline" class="text-white">
                 Motion: {{ motionLevelLabel }}
+            </Badge>
+
+            <Badge variant="outline" class="text-white">
+                {{ t.BodyTemperature ?? 'N/A' }}
+            </Badge>
+
+            <Badge variant="outline" class="text-white">
+                {{ t.HeartRate ?? 'N/A' }}
             </Badge>
 
             <Badge v-if="bearingLabel" variant="outline" class="text-white">

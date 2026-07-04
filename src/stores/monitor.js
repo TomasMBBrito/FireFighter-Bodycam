@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { API_BASE_URL } from '@/config/env'
+import { api } from '@/lib/api'
 
 export const useMonitorStore = defineStore('monitor', () => {
     const mission = ref(null)
@@ -24,36 +25,21 @@ export const useMonitorStore = defineStore('monitor', () => {
 
     const createStreamURLsOnlyKnowFirefighters = async () => {
         streamURLs.value = []
-
         if (monitorMission.value) {
-            const res = await fetch(
-                `${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`
-            )
-
-            firefightersList.value = await res.json()
+            firefightersList.value = await api.get(`/api/Mission/${mission.value.missionId}/firefighters`)
         }
-
         for (const ff of firefightersList.value) {
-            const res = await fetch(
-                `${API_BASE_URL}/api/Mission/firefighter/${ff.firefighterId}/active-mission`
-            )
-
-            const data = await res.json()
-
-            streamURLs.value.push(
-                `${ff.firefighterId}/${data.missionId}`
-            )
+            const data = await api.get(`/api/Mission/firefighter/${ff.firefighterId}/active-mission`)
+            streamURLs.value.push(`${ff.firefighterId}/${data.missionId}`)
         }
     }
 
     const createStreamURLs = async () => {
-        if(monitorMission.value) {
-            const res = await fetch(`${API_BASE_URL}/api/Mission/${mission.value.missionId}/firefighters`)
-            firefightersList.value = await res.json()
+        if (monitorMission.value) {
+            firefightersList.value = await api.get(`/api/Mission/${mission.value.missionId}/firefighters`)
         }
         firefightersList.value.forEach(ff => {
             streamURLs.value.push(`${ff.firefighterId}/${mission.value.missionId}`)
-            //console.log(`${mission.value.missionId}/${ff.firefighterId}`) // Log the stream URL for debugging
         })
     }
 
