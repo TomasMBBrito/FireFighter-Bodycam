@@ -312,7 +312,7 @@ const bearingLabel = computed(() => {
             </div>
 
             <div class="flex gap-2">
-                <Input v-model="customTTS" placeholder="Custom message..." @keydown.enter="sendCustomTTS" />
+                <Input v-model="customTTS" class="text-white" placeholder="Custom message..." @keydown.enter="sendCustomTTS" />
                 <Button size="sm" @click="sendCustomTTS">
                     Send
                 </Button>

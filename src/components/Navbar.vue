@@ -36,32 +36,34 @@ const links = [
 
         <div class="flex gap-1">
             <Button
+                v-if="authStore.isLoggedIn"
+                variant="ghost"
+                class="text-slate-300 bg-[#ad1010] hover:text-white hover:bg-[#760f0f] cursor-pointer mr-3"
+                @click="handleLogout"
+                >
+                Logout
+            </Button>
+            <Button
                 v-for="link in links"
                 :key="link.path"
                 :variant="route.path === link.path ? 'default' : 'ghost'"
                 class="text-sm transition-colors"
                 :class="route.path === link.path
-                    ? 'bg-blue-700 hover:bg-blue-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-[#162035]'"
+                    ? 'bg-blue-700 hover:bg-blue-600 text-white cursor-pointer'
+                    : 'text-slate-400 hover:text-white hover:bg-[#162035] cursor-pointer'"
                 @click="router.push(link.path)"
             >
                 {{ link.label }}
             </Button>
 
-            <Button
-                v-if="authStore.isLoggedIn"
-                variant="ghost"
-                class="text-slate-300 hover:text-white hover:bg-[#1E3A5F]"
-                @click="handleLogout"
-                >
-                logout
-            </Button>
+            
 
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button
+                        v-if="authStore.role === 'Admin'"
                         variant="ghost"
-                        class="text-sm text-slate-400 hover:text-white hover:bg-[#162035] transition-colors"
+                        class="text-sm text-slate-400 hover:text-white hover:bg-[#162035] transition-colors cursor-pointer"
                     >
                         + Create
                     </Button>
