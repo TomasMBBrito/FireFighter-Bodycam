@@ -24,6 +24,7 @@ const links = [
     { label: 'Firefighters', path: '/firefighters' },
     { label: 'Stations', path: '/stations' },
     { label: 'History', path: '/history' },
+    { label: 'Statistics', path: '/statistics'}
 ]
 </script>
 

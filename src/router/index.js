@@ -18,6 +18,7 @@ import CreateStationView from '@/views/CreateStationView.vue'
 import FirefighterEditView from '@/views/FirefighterEditView.vue'
 import StationEditView from '@/views/StationEditView.vue'
 import LoginView from '@/views/LoginView.vue'
+import StatisticsView from '@/views/StatisticsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,6 +74,9 @@ const router = createRouter({
     },
     {
       path: '/login', component: LoginView
+    },
+    {
+      path: '/statistics', component: StatisticsView, meta: { roles: ['Monitor', 'Admin'] }
     }
   ],
 })
