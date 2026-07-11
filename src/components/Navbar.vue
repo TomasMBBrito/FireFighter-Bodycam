@@ -21,7 +21,7 @@ function handleLogout() {
 const links = [
     { label: 'Map', path: '/' },
     { label: 'Missions', path: '/missions' },
-    { label: 'Firefighters', path: '/firefighters' },
+    { label: 'Users', path: '/firefighters' },
     { label: 'Stations', path: '/stations' },
     { label: 'History', path: '/history' },
     { label: 'Statistics', path: '/statistics'}

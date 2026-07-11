@@ -14,13 +14,30 @@ const router = useRouter()
 const missions = ref([])
 const loading = ref(true)
 const selectedType = ref('All')
+const selectedStatus = ref('All')
 
 const incidentTypes = ['All', 'Solo', 'Wildfire', 'Structure Fire', 'Rescue', 'Hazmat', 'Other']
 
+const statusOptions = [
+  { label: 'All', value: 'All' },
+  { label: 'Active', value: 0 },
+  { label: 'Completed', value: 1 },
+]
+
+const statusLabel = (status) => {
+  const found = statusOptions.find(s => s.value === status)
+  return found ? found.label : status
+}
+
+
 const filteredMissions = computed(() => {
-  if (selectedType.value === 'All') return missions.value
-  return missions.value.filter(m => m.incidentType === selectedType.value)
+  return missions.value.filter(m => {
+    const matchesType = selectedType.value === 'All' || m.incidentType === selectedType.value
+    const matchesStatus = selectedStatus.value === 'All' || m.status === selectedStatus.value
+    return matchesType && matchesStatus
+  })
 })
+
 
 const editMission = (mission) => router.push({ path: `/missions/edit/${mission.missionId}` })
 
@@ -34,7 +51,7 @@ const watchLive = async (mission) => {
 }
 
 onMounted(async () => {
-  const all = await api.get('/api/Mission/status/Active')
+  const all = await api.get('/api/Mission')
   for (const mission of all) {
     const ffs = await api.get(`/api/Mission/${mission.missionId}/firefighters`).catch(() => [])
     mission.streaming = ffs.length > 0 ? ffs[0].streaming : false
@@ -46,21 +63,33 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-[#0D1526] p-6 flex flex-col gap-5">
-
-    <!-- Header -->
+     
     <div class="flex items-center justify-between">
       <h1 class="text-lg font-semibold text-white">Missions</h1>
-
-      <div class="flex items-center gap-2">
-        <span class="text-sm text-slate-400">Type:</span>
-        <select
-          v-model="selectedType"
-          class="bg-[#162035] border border-[#1E3A5F] text-slate-300 text-sm rounded px-2 py-1 outline-none focus:border-blue-600 transition-colors"
-        >
-          <option v-for="type in incidentTypes" :key="type" :value="type">{{ type }}</option>
-        </select>
+ 
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-slate-400">Type:</span>
+          <select
+            v-model="selectedType"
+            class="bg-[#162035] border border-[#1E3A5F] text-slate-300 text-sm rounded px-2 py-1 outline-none focus:border-blue-600 transition-colors"
+          >
+            <option v-for="type in incidentTypes" :key="type" :value="type">{{ type }}</option>
+          </select>
+        </div>
+ 
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-slate-400">Status:</span>
+          <select
+            v-model="selectedStatus"
+            class="bg-[#162035] border border-[#1E3A5F] text-slate-300 text-sm rounded px-2 py-1 outline-none focus:border-blue-600 transition-colors"
+          >
+            <option v-for="opt in statusOptions" :key="opt.label" :value="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
       </div>
     </div>
+
 
     <!-- Loading -->
     <div v-if="loading" class="text-slate-500 text-sm">Loading...</div>
@@ -107,10 +136,16 @@ onMounted(async () => {
           </TableCell>
 
           <TableCell>
-            <Badge class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-900">
-              {{ mission.status }}
+            <Badge
+              class="text-xs border"
+              :class="mission.status === 0
+                ? 'bg-emerald-950 text-emerald-400 border-emerald-900'
+                : 'bg-blue-950 text-blue-300 border-blue-800'"
+            >
+              {{ statusLabel(mission.status) }}
             </Badge>
           </TableCell>
+
 
           <TableCell class="text-right">
             <div class="flex justify-end gap-2">

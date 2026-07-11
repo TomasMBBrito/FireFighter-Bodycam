@@ -12,6 +12,7 @@ const router = useRouter()
 const userId = route.params.id
 const name = ref('')
 const email = ref('')
+const role = ref('')
 const stationId = ref(null)
 const stations = ref([])
 const loading = ref(true)
@@ -23,6 +24,7 @@ onMounted(async () => {
   ])
   name.value = user.name
   email.value = user.email
+  role.value = user.role
   stationId.value = user.stationId ?? null
   stations.value = stationsData
   loading.value = false
@@ -76,7 +78,7 @@ const submit = async () => {
             />
           </div>
 
-          <div class="flex flex-col gap-1.5 px-4 py-3">
+          <div v-if="role == 'Firefighter' || role == 'Vehicle'" class="flex flex-col gap-1.5 px-4 py-3">
             <label class="text-xs text-slate-500 uppercase tracking-wider">Station</label>
             <select
               v-model="stationId"
