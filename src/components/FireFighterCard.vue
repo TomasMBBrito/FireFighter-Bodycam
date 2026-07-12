@@ -32,15 +32,6 @@ const t = computed(() =>
     )
 )
 
-const snapshot = computed(() =>
-    telemetryStore.getSnapshot(props.firefighter.firefighterId)
-)
-
-const snapshotUrl = computed(() => {
-    if (!snapshot.value?.SnapshotUrl) return null
-    return `${API_BASE_URL}${snapshot.value.SnapshotUrl}?t=${snapshot.value.Timestamp}`
-})
-
 const customTTS = ref('')
 
 const mapContainer = ref(null)
@@ -240,9 +231,7 @@ const bearingLabel = computed(() => {
     >
         <!-- Video -->
         <div class="relative aspect-video bg-black">
-            <VideoStream v-if="!snapshotUrl" :stream-path="streamPath" class="w-full h-full object-cover" />
-            <img v-else :src="snapshotUrl" :key="snapshot.Timestamp" class="w-full h-full object-cover"
-                alt="Snapshot" />
+            <VideoStream :stream-path="streamPath" class="w-full h-full object-cover" />
  
             <div v-if="leafletReady" ref="mapContainer"
                 class="absolute bottom-2 right-2 w-52 h-40 rounded-lg overflow-hidden border-2 border-white shadow-xl z-20 bg-white" />
