@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onUnmounted } from 'vue'
 import FirefighterCard from '@/components/FireFighterCard.vue'
+import OverviewMap from '@/components/OverviewMap.vue'
 import { useMonitorStore } from '@/stores/monitor'
 import { useTelemetryStore } from '@/stores/telemetry'
 
@@ -20,6 +21,13 @@ const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`
 }))
 
+const handleSelect = (firefighterId) => {
+  selectedFirefighterId.value = selectedFirefighterId.value === firefighterId
+    ? null
+    : firefighterId
+}
+
+
 onUnmounted(() => {
   telemetryStore.disconnectAll()
   monitorStore.reset()
@@ -37,6 +45,14 @@ onUnmounted(() => {
       </span>
     </div>
 
+        <!-- Overview map: all firefighters currently sending GPS data -->
+    <OverviewMap
+      :firefighters="monitorStore.firefightersList"
+      :selected-id="selectedFirefighterId"
+      @select="handleSelect"
+    />
+
+
     <!-- Grid -->
     <div
       class="grid gap-3 w-full items-start"
@@ -47,6 +63,7 @@ onUnmounted(() => {
         :key="ff.firefighterId"
         :firefighter="ff"
         :stream-path="monitorStore.streamURLs[index]"
+        :selected="selectedFirefighterId === ff.firefighterId"
         class="w-full"
       />
     </div>

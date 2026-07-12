@@ -19,7 +19,8 @@ import { Input } from '@/components/ui/input'
 
 const props = defineProps({
     firefighter: Object,
-    streamPath: String
+    streamPath: String,
+    selected: { type: Boolean, default: false }
 })
 
 const telemetryStore = useTelemetryStore()
@@ -242,21 +243,25 @@ const bearingLabel = computed(() => {
 </script>
 
 <template>
-    <!-- Single root wrapper fixes the multi-root grid alignment bug -->
-    <div class="w-full rounded-lg overflow-hidden border border-border">
+    <div
+        class="w-full rounded-lg overflow-hidden border transition-colors"
+        :class="selected
+            ? 'border-blue-500 border-4 shadow-lg shadow-blue-500/40'
+            : 'border-border'"
+    >
         <!-- Video -->
         <div class="relative aspect-video bg-black">
             <VideoStream v-if="!snapshotUrl" :stream-path="streamPath" class="w-full h-full object-cover" />
             <img v-else :src="snapshotUrl" :key="snapshot.Timestamp" class="w-full h-full object-cover"
                 alt="Snapshot" />
-
+ 
             <div v-if="leafletReady" ref="mapContainer"
                 class="absolute bottom-2 right-2 w-52 h-40 rounded-lg overflow-hidden border-2 border-white shadow-xl z-20 bg-white" />
-
+ 
             <div class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                 {{ firefighter.name }}
             </div>
-
+ 
             <div v-if="sosActive"
                 class="absolute inset-0 flex items-center justify-center z-10 bg-red-600/80 animate-pulse">
                 <Alert variant="destructive" class="w-fit border-2 border-white shadow-2xl bg-red-600 text-white">
@@ -269,39 +274,39 @@ const bearingLabel = computed(() => {
                 </Alert>
             </div>
         </div>
-
+ 
         <!-- Telemetry -->
         <div v-if="t" class="border-t border-border px-3 py-2 flex flex-wrap gap-2 items-center text-white">
             <Badge variant="outline" class="text-white">
                 {{ t.ActivityState ?? 'N/A' }}
             </Badge>
-
+ 
             <Badge variant="outline" class="text-white">
                 {{ t.IsMoving ? 'Moving' : 'Stationary' }}
             </Badge>
-
+ 
             <Badge variant="outline" class="text-white">
                 Motion: {{ motionLevelLabel }}
             </Badge>
-
+ 
             <Badge variant="outline" class="text-white">
                 {{ t.BodyTemperature ?? 'N/A' }}
             </Badge>
-
+ 
             <Badge variant="outline" class="text-white">
                 {{ t.HeartRate ?? 'N/A' }}
             </Badge>
-
+ 
             <Badge v-if="bearingLabel" variant="outline" class="text-white">
                 ↑ {{ bearingLabel }} ({{ Math.round(t.CompassBearing) }}°)
             </Badge>
-
+ 
             <Badge v-if="t.GpsLat != null && t.GpsLng != null && leafletReady" variant="outline"
                 class="font-mono text-white">
                 {{ t.GpsLat?.toFixed(5) }}, {{ t.GpsLng?.toFixed(5) }}
             </Badge>
         </div>
-
+ 
         <!-- Text to speech buttons -->
         <div v-if="t" class="border-t border-border px-3 py-2 flex flex-col gap-2">
             <div class="flex flex-wrap gap-2">
@@ -310,7 +315,7 @@ const bearingLabel = computed(() => {
                     {{ btn.label }}
                 </Button>
             </div>
-
+ 
             <div class="flex gap-2">
                 <Input v-model="customTTS" class="text-white" placeholder="Custom message..." @keydown.enter="sendCustomTTS" />
                 <Button size="sm" @click="sendCustomTTS">
