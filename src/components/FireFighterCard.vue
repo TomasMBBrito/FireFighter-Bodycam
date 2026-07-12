@@ -43,9 +43,6 @@ const snapshotUrl = computed(() => {
 
 const customTTS = ref('')
 
-let pathLine = null
-const pathPoints = []
-
 const mapContainer = ref(null)
 const leafletReady = ref(!!window.L)
 
@@ -123,10 +120,6 @@ async function createMap() {
         icon: getArrowIcon(t.value.CompassBearing)
     }).addTo(leafletMap)
 
-    pathPoints.push(latlng)
-
-    pathLine = L.polyline(pathPoints, { weight: 4 }).addTo(leafletMap)
-
     leafletMap.invalidateSize()
 }
 
@@ -174,8 +167,6 @@ watch(
         const position = [lat, lng]
         leafletMarker.setLatLng(position)
         leafletMap?.panTo(position, { animate: true, duration: 0.5 })
-        pathPoints.push(position)
-        if (pathLine) pathLine.setLatLngs(pathPoints)
     }
 )
 
@@ -217,8 +208,6 @@ function destroyMap() {
         leafletMap = null
     }
     leafletMarker = null
-    pathLine = null
-    pathPoints.length = 0
 }
 
 onUnmounted(() => {

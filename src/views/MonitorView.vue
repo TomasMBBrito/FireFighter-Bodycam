@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onUnmounted } from 'vue'
+import { ref,computed, onUnmounted } from 'vue'
 import FirefighterCard from '@/components/FireFighterCard.vue'
 import OverviewMap from '@/components/OverviewMap.vue'
 import { useMonitorStore } from '@/stores/monitor'
@@ -8,6 +8,8 @@ import { useTelemetryStore } from '@/stores/telemetry'
 const monitorStore = useMonitorStore()
 const telemetryStore = useTelemetryStore()
 monitorStore.createStreamURLs()
+
+const selectedFirefighterId = ref(null)
 
 const gridCols = computed(() => {
   const n = monitorStore.streamURLs.length

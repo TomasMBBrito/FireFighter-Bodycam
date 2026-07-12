@@ -16,8 +16,6 @@ const leafletReady = ref(!!window.L)
 
 let leafletMap = null
 const markers = {}     // firefighterId -> L.Marker
-const polylines = {}   // firefighterId -> L.Polyline
-const pathPoints = {}  // firefighterId -> array of [lat, lng]
 
 // Distinct color palette, cycled by a stable hash of the firefighter id
 // so each firefighter always gets the same color regardless of list order.
@@ -82,8 +80,6 @@ function ensureMarker(ff) {
     marker.on('click', () => emit('select', ff.firefighterId))
 
     markers[ff.firefighterId] = marker
-    pathPoints[ff.firefighterId] = [latlng]
-    polylines[ff.firefighterId] = L.polyline([latlng], { color, weight: 4, opacity: 0.8 }).addTo(leafletMap)
 }
 
 function updateMarker(ff) {
@@ -101,9 +97,6 @@ function updateMarker(ff) {
 
     marker.setLatLng(latlng)
     marker.setIcon(getColoredArrowIcon(t.CompassBearing, color, props.selectedId === ff.firefighterId))
-
-    pathPoints[ff.firefighterId].push(latlng)
-    polylines[ff.firefighterId].setLatLngs(pathPoints[ff.firefighterId])
 }
 
 function removeMarker(id) {
@@ -111,11 +104,6 @@ function removeMarker(id) {
         leafletMap.removeLayer(markers[id])
         delete markers[id]
     }
-    if (polylines[id]) {
-        leafletMap.removeLayer(polylines[id])
-        delete polylines[id]
-    }
-    delete pathPoints[id]
 }
 
 function fitToMarkers() {
