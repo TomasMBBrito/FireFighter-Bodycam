@@ -39,8 +39,6 @@ export const useTelemetryStore = defineStore('telemetry', () => {
 
         socket.onclose = () => {
             telemetry_map.value[firefighterID] = null
-            network_map.value[firefighterID] = null
-            snapshot_map.value[firefighterID] = null
             delete sockets[firefighterID]
         }
 
@@ -73,8 +71,6 @@ export const useTelemetryStore = defineStore('telemetry', () => {
 
     return {
         telemetry_map,
-        network_map,
-        snapshot_map,
         connect,
         disconnect,
         disconnectAll,
