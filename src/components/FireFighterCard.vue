@@ -260,10 +260,6 @@ const bearingLabel = computed(() => {
             </Badge>
  
             <Badge variant="outline" class="text-white">
-                {{ t.IsMoving ? 'Moving' : 'Stationary' }}
-            </Badge>
- 
-            <Badge variant="outline" class="text-white">
                 Motion: {{ motionLevelLabel }}
             </Badge>
  
