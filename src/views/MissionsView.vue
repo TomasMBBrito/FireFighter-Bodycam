@@ -7,14 +7,16 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { API_BASE_URL } from '@/config/env'
 import { api } from '@/lib/api'
+import { useMonitorStore } from '@/stores/monitor'
 
 const router = useRouter()
 const missions = ref([])
 const loading = ref(true)
 const selectedType = ref('All')
 const selectedStatus = ref('All')
+
+const monitorStore = useMonitorStore()
 
 const incidentTypes = ['All', 'Solo', 'Wildfire', 'Structure Fire', 'Rescue', 'Hazmat', 'Other']
 
@@ -41,13 +43,12 @@ const filteredMissions = computed(() => {
 
 const editMission = (mission) => router.push({ path: `/missions/edit/${mission.missionId}` })
 
-const watchMissionCameras = (mission) => router.push({ path: '/missions/cameras', query: { missionId: mission.missionId } })
-
 const watchLive = async (mission) => {
-  const firefighters = await api.get(`/api/Mission/${mission.missionId}/firefighters`)
-  const ids = firefighters.map(ff => ff.firefighterId).join(',')
-  const names = firefighters.map(ff => ff.name).join(',')
-  router.push({ path: 'firefighters/live', query: { ids, names } })
+  // const firefighters = await api.get(`/api/Mission/${mission.missionId}/firefighters`)
+  // const ids = firefighters.map(ff => ff.firefighterId).join(',')
+  // const names = firefighters.map(ff => ff.name).join(',')
+  monitorStore.selectMission(mission)
+  router.push({ path: '/missions/cameras'})
 }
 
 onMounted(async () => {
@@ -149,13 +150,13 @@ onMounted(async () => {
 
           <TableCell class="text-right">
             <div class="flex justify-end gap-2">
-              <Button
+              <!-- <Button
                 size="sm"
                 class="text-xs bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F] transition-colors"
                 @click="watchMissionCameras(mission)"
               >
                 Cameras
-              </Button>
+              </Button> -->
 
               <Button
                 size="sm"
