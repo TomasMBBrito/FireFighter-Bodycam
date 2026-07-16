@@ -61,6 +61,7 @@ onUnmounted(() => {
     <OverviewMap
       :firefighters="monitorStore.firefightersList"
       :selected-id="selectedFirefighterId"
+      :mission-center=null
       @select="handleSelect"
     />
  

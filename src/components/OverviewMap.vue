@@ -150,7 +150,7 @@ async function createMap() {
     fitToMarkers()
 }
 
-// React to GPS/bearing changes for any tracked firefighter
+// Muda com as mudanças do GPS/bearing changes de qualquer bombeiro
 watch(
     () => props.firefighters.map(ff => {
         const t = getTelemetryFor(ff)
@@ -162,7 +162,17 @@ watch(
     { deep: true }
 )
 
-// React to firefighters being added/removed from the monitored list
+// Muda o centro do mapa se a missão for alterada
+watch(
+    () => props.missionCenter,
+    (newCenter) => {
+        if (newCenter && leafletMap && Object.keys(markers).length === 0) {
+            leafletMap.setView([newCenter.lat, newCenter.lng], 15)
+        }
+    }
+)
+
+//Muda consoante a adição ou remoção de bombeiros, para adicionar ou remover marcadores do mapa
 watch(
     () => props.firefighters.map(ff => ff.firefighterId),
     (newIds, oldIds = []) => {
@@ -171,7 +181,7 @@ watch(
     }
 )
 
-// Re-style the selected marker (highlight ring) when selection changes
+// Mudar o anel em torno do marcador se o bombeiro estiver selecionado
 watch(
     () => props.selectedId,
     () => {
