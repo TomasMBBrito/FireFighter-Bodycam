@@ -19,6 +19,18 @@ const selectedFirefighter = ref('')
 const incidentTypes = ['Solo', 'Wildfire', 'Structure Fire', 'Rescue', 'Hazmat', 'Other']
 const statuses = ['Active', 'Completed', 'Cancelled']
 
+const statusToString = {
+  0: 'Active',
+  1: 'Completed',
+  2: 'Cancelled'
+}
+
+const stringToStatus = {
+  Active: 0,
+  Completed: 1,
+  Cancelled: 2
+}
+
 const loadData = async () => {
   try {
     const [m, ffs, cmds, allFfs] = await Promise.all([
@@ -27,6 +39,9 @@ const loadData = async () => {
       api.get('/api/User/commanders'),
       api.get('/api/User/firefighters')
     ])
+
+    m.status = statusToString[m.status]
+
     mission.value = m
     firefighters.value = ffs
     commanders.value = cmds
@@ -37,14 +52,14 @@ const loadData = async () => {
 }
 
 const saveMission = async () => {
-  const statusMap = { 'Active': 0, 'Completed': 1, 'Cancelled': 2 }
+  //const statusMap = { 'Active': 0, 'Completed': 1, 'Cancelled': 2 }
   await api.put(`/api/Mission/${missionId}`, {
     title: mission.value.title,
     location: mission.value.location,
     latitude: mission.value.latitude,
     longitude: mission.value.longitude,
     incidentType: mission.value.incidentType,
-    status: statusMap[mission.value.status],
+    status: stringToStatus[mission.value.status],
     commanderId: mission.value.commanderId
   })
   router.push('/missions')
