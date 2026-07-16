@@ -45,8 +45,7 @@ async function handleLogin() {
   <div class="flex items-center justify-center h-screen bg-[#0D1526] px-4">
     <Card class="w-full max-w-sm bg-[#0F1A2E] border border-[#1E3A5F]">
       <CardHeader class="flex flex-col items-center gap-2 pb-2">
-        <span class="text-3xl">🔥</span>
-        <h1 class="text-lg font-semibold text-white">Firefighter Ops</h1>
+        <h1 class="text-lg font-semibold text-white">Firefighter Operational Center</h1>
         <p class="text-sm text-slate-500">Start session to enter</p>
       </CardHeader>
 

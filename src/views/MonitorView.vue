@@ -23,6 +23,19 @@ const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${gridCols.value}, minmax(0, 1fr))`
 }))
 
+const missionCenter = computed(() => {
+  const m = monitorStore.mission
+  console.log('missionCenter', m)
+  if (!m) return null
+
+  const lat = m.latitude ?? m.Latitude
+  const lng = m.longitude ?? m.Longitude
+
+  if (lat == null || lng == null) return null
+
+  return { lat, lng }
+})
+
 const handleSelect = (firefighterId) => {
   selectedFirefighterId.value = selectedFirefighterId.value === firefighterId
     ? null
@@ -39,7 +52,6 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-[#0D1526] p-6 flex flex-col gap-5">
 
-    <!-- Header -->
     <div class="flex items-center justify-between">
       <h1 class="text-lg font-semibold text-white">Live Cameras</h1>
       <span class="text-xs text-slate-500">
@@ -47,15 +59,13 @@ onUnmounted(() => {
       </span>
     </div>
 
-        <!-- Overview map: all firefighters currently sending GPS data -->
     <OverviewMap
       :firefighters="monitorStore.firefightersList"
       :selected-id="selectedFirefighterId"
+      :mission-center="missionCenter"
       @select="handleSelect"
     />
 
-
-    <!-- Grid -->
     <div
       class="grid gap-3 w-full items-start"
       :style="gridStyle"

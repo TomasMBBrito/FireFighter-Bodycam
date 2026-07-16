@@ -44,9 +44,6 @@ const filteredMissions = computed(() => {
 const editMission = (mission) => router.push({ path: `/missions/edit/${mission.missionId}` })
 
 const watchLive = async (mission) => {
-  // const firefighters = await api.get(`/api/Mission/${mission.missionId}/firefighters`)
-  // const ids = firefighters.map(ff => ff.firefighterId).join(',')
-  // const names = firefighters.map(ff => ff.name).join(',')
   monitorStore.selectMission(mission)
   router.push({ path: '/missions/cameras'})
 }
@@ -149,15 +146,7 @@ onMounted(async () => {
 
 
           <TableCell class="text-right">
-            <div class="flex justify-end gap-2">
-              <!-- <Button
-                size="sm"
-                class="text-xs bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F] transition-colors"
-                @click="watchMissionCameras(mission)"
-              >
-                Cameras
-              </Button> -->
-
+            <div class="flex justify-end gap-2">             
               <Button
                 size="sm"
                 class="text-xs bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F] transition-colors"

@@ -196,7 +196,7 @@ onUnmounted(() => {
       <!-- Empty state -->
       <div v-if="!selectedMission" class="flex flex-col items-center justify-center h-full gap-3 text-center px-8">
         <span class="text-4xl">🔥</span>
-        <p class="text-sm text-slate-500">Selecione uma missão no mapa</p>
+        <p class="text-sm text-slate-500">Select a mission on the map</p>
       </div>
 
       <!-- Mission selected -->
@@ -229,14 +229,14 @@ onUnmounted(() => {
               : 'bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F]'"
             @click="loadFirefighters"
           >
-            Bombeiros
+            Firefighters
           </Button>
           <Button
             class="flex-1 h-9 text-sm bg-[#162035] hover:bg-[#1E3A5F] text-slate-300 border border-[#1E3A5F] transition-colors"
             :disabled="showFirefighters"
             @click="watchMissionCameras"
           >
-            Câmeras
+            Cameras
           </Button>
         </div>
 
@@ -249,9 +249,9 @@ onUnmounted(() => {
             <Table>
               <TableHeader>
                 <TableRow class="border-[#1E3A5F] hover:bg-transparent">
-                  <TableHead class="text-slate-500 text-xs w-10">Ver</TableHead>
-                  <TableHead class="text-slate-500 text-xs">Nome</TableHead>
-                  <TableHead class="text-slate-500 text-xs">Função</TableHead>
+                  <TableHead class="text-slate-500 text-xs w-10">Watch</TableHead>
+                  <TableHead class="text-slate-500 text-xs">Name</TableHead>
+                  <TableHead class="text-slate-500 text-xs">Role</TableHead>
                   <TableHead class="text-slate-500 text-xs">Stream</TableHead>
                 </TableRow>
               </TableHeader>
@@ -293,7 +293,7 @@ onUnmounted(() => {
             :disabled="selectedFirefighters.length === 0"
             @click="watchFirefighterCameras"
           >
-            Ver câmeras selecionadas ({{ selectedFirefighters.length }})
+            Watch cameras selected ({{ selectedFirefighters.length }})
           </Button>
         </div>
 

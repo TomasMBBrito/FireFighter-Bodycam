@@ -3,8 +3,9 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useTelemetryStore } from '@/stores/telemetry'
 
 const props = defineProps({
-    firefighters: { type: Array, default: () => [] }, // list of { firefighterId, name, ... }
-    selectedId: { type: [String, Number, null], default: null }
+    firefighters: { type: Array, default: () => [] },
+    selectedId: { type: [String, Number, null], default: null },
+    missionCenter: { type: Object, default: null }
 })
 
 const emit = defineEmits(['select'])
@@ -109,7 +110,14 @@ function removeMarker(id) {
 function fitToMarkers() {
     const L = window.L
     const points = Object.values(markers).map(m => m.getLatLng())
-    if (!leafletMap || points.length === 0) return
+    if (!leafletMap) return
+
+    if (points.length === 0) {
+        if (props.missionCenter) {
+            leafletMap.setView([props.missionCenter.lat, props.missionCenter.lng], 15)
+        }
+        return
+    }
 
     if (points.length === 1) {
         leafletMap.setView(points[0], 16)
@@ -122,11 +130,15 @@ async function createMap() {
     if (!window.L || !mapContainer.value || leafletMap) return
 
     const L = window.L
-    // Default center: adjust to your operational area
+
+    const initialCenter = props.missionCenter
+        ? [props.missionCenter.lat, props.missionCenter.lng]
+        : [39.6, -8.5]
+
     leafletMap = L.map(mapContainer.value, {
         zoomControl: true,
         attributionControl: false
-    }).setView([39.6, -8.5], 8)
+    }).setView(initialCenter, props.missionCenter ? 15 : 8)
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19

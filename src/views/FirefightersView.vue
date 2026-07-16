@@ -82,8 +82,7 @@ loadFirefighters()
 <template>
   <div class="min-h-screen bg-[#0D1526] p-6 flex flex-col gap-5">
 
-    <!-- Header -->
-        <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between">
       <h1 class="text-lg font-semibold text-white">Firefighters</h1>
  
       <div class="flex items-center gap-4">
